@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -7,7 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Systems\Context\" />
+      <ProjectReference Include="..\VnuaCare.Shared\VnuaCare.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
+    <PackageReference Include="WorkflowEngine.NETCore-Core" Version="17.0.0" />
+    <PackageReference Include="WorkflowEngine.NETCore-ProviderForMSSQL" Version="17.0.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     </ItemGroup>
 
 </Project>
