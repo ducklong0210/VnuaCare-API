@@ -5,14 +5,11 @@ namespace VnuaCare.Data.Systems.DataContext;
 
 public class VnuaCareDataContext : DbContext
 {
-    
-        
-        
+    public VnuaCareDataContext(DbContextOptions<VnuaCareDataContext> options) : base(options)
+    {
+    }
+
     public DbSet<VcUsers> VcUsers { get; set; }
     public DbSet<VcStaffs> VcStaffs { get; set; }
     public DbSet<VcDoctors> VcDoctors { get; set; }
-        
-        
-        
-        
 }
