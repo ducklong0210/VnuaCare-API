@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace VnuaCare.Business.Business.Services;
+namespace VnuaCare.Business.Services;
 
 public interface IJwtService
 {
