@@ -144,10 +144,3 @@ ServiceFabricBackup/
 # Rider
 .idea/
 *.sln.iml
-
-# System Configuration Files (Requested)
-appsettings.json
-appsettings.*.json
-web.config
-app.config
-*.pubxml

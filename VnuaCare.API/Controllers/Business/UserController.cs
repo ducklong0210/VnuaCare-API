@@ -1,32 +1,44 @@
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VnuaCare.Data.Systems.Context;
-using Microsoft.Data.SqlClient;
-using System.Data;
-using Dapper;
+using VnuaCare.Business.Business.Users;
+using VnuaCare.Business.Business.Users.UserCommands;
+using VnuaCare.Business.Business.Users.UserQueries;
 
 namespace VnuaCare.API.Controllers.Business;
 
+/// <summary>
+/// Quản lý thông tin tài khoản và hồ sơ người dùng
+/// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
+[Authorize] // Bắt buộc người dùng phải đăng nhập và gửi kèm JWT Bearer Token
 public class UserController : ControllerBase
 {
-    private readonly string _connectionString;
+    private readonly IMediator _mediator;
 
-    public UserController(IConfiguration configuration)
+    public UserController(IMediator mediator)
     {
-        _connectionString = configuration.GetConnectionString("DefaultConnection");
+        _mediator = mediator;
     }
-    
-    [HttpGet]
-    public async Task<IEnumerable<VcUsers>> Get()
+
+    /// <summary>
+    /// Lấy thông tin cá nhân và hồ sơ chuyên môn của người đang đăng nhập
+    /// </summary>
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile()
     {
-        using (var conn = new SqlConnection(_connectionString))
-        {
-            if (conn.State == ConnectionState.Closed)
-                conn.Open();
-            var result = await conn.QueryAsync<VcUsers>("SELECT * FROM vc_users", null, null, null,CommandType.Text);
-            
-            return result;
-        }
+        var result = await _mediator.Send(new GetMyProfileQuery());
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Đổi mật khẩu tài khoản đang đăng nhập
+    /// </summary>
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordUserModel model)
+    {
+        await _mediator.Send(new ChangePassUserCommand(model));
+        return Ok(new { message = "Đổi mật khẩu thành công." });
     }
 }
