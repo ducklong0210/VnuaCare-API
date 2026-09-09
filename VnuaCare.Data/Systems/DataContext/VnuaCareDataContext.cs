@@ -4,17 +4,21 @@ using VnuaCare.Shared.ContextAccessor;
 
 namespace VnuaCare.Data.Systems.DataContext;
 
+/// <summary>
+/// DbContext chính của hệ thống V-Care Health
+/// </summary>
 public class VnuaCareDataContext : DbContext
 {
-    private readonly IContextAccessor _contextAccessor;
-    public VnuaCareDataContext(DbContextOptions<VnuaCareDataContext> options, Func<IContextAccessor> contextAccessorFactory) : base(options)
+    private readonly IContextAccessor? _contextAccessor;
+
+    public VnuaCareDataContext(
+        DbContextOptions<VnuaCareDataContext> options, 
+        Func<IContextAccessor> contextAccessorFactory) : base(options)
     {
         _contextAccessor = contextAccessorFactory?.Invoke();
     }
-        
+
     public DbSet<VcUsers> VcUsers { get; set; }
     public DbSet<VcStaffs> VcStaffs { get; set; }
     public DbSet<VcDoctors> VcDoctors { get; set; }
-        
-        
 }

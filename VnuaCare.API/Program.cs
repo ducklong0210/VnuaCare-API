@@ -18,24 +18,24 @@ DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Add Controllers
+// 1. Add Controllers
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Cấu hình Swagger
+// 2. Cấu hình Swagger UI kèm hỗ trợ JWT Bearer Token
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "V-Care Health API", Version = "v1" });
 
-    // Thêm comment XML vào Swagger (nếu file tồn tại)
+    // Đọc comment XML từ code để hiển thị mô tả API trên Swagger
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))
     {
         c.IncludeXmlComments(xmlPath);
     }
-// Cấu hình JWT Auth cho Swagger
 
+    // Cấu hình nút Authorize trên Swagger UI
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Nhập JWT Bearer Token theo định dạng: Bearer {token}",
@@ -61,73 +61,68 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// DbContext
+// 3. Kết nối CSDL SQL Server qua Entity Framework Core
 builder.Services.AddDbContext<VnuaCareDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//  MediatR
+// 4. Đăng ký MediatR xử lý Command & Query
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UserLoginCommand).Assembly));
 
-// Services (PasswordHasher, JwtService)
+// 5. Đăng ký các dịch vụ cốt lõi (PasswordHasher, JwtService)
 builder.Services.AddScoped<IBcryptPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddLocalization();
 
-// Cấu hình xác thực JWT
+// 6. Cấu hình xác thực người dùng bằng JWT Bearer Token
 builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"]))
-        };
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"] ?? "VnuaCareHealthSecretKey2026SuperSecureKeyDefault123456!"))
+    };
 
-        // Cấu hình để SignalR có thể nhận token từ query string
-        options.Events = new JwtBearerEvents
+    // Cấu hình nhận Token từ Query String khi kết nối SignalR realtime
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
         {
-            OnMessageReceived = context =>
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
             {
-                var accessToken = context.Request.Query["access_token"];
-                var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
-                {
-                    context.Token = accessToken;
-                }
-
-                return Task.CompletedTask;
+                context.Token = accessToken;
             }
-        };
-    });
+            return Task.CompletedTask;
+        }
+    };
+});
 
-//Đăng ký Context Accessor
+// 7. Đăng ký HttpContextAccessor và ContextAccessor Wrapper
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IContextAccessor, HttpContextAccessorWrapper>();
-// Đăng ký Cache Service
+builder.Services.AddScoped<Func<IContextAccessor>>(sp => () => sp.GetRequiredService<IContextAccessor>());
+
+// 8. Đăng ký Cache Service (Hỗ trợ cả Redis và In-Memory)
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
     options.InstanceName = "VnuaCare_";
 });
-// Đăng ký Context Accessor
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<IContextAccessor, HttpContextAccessorWrapper>();
-//  Đăng ký Factory Func<IContextAccessor> (BẮT BUỘC ĐỂ DATACONTEXT NHẬN ĐƯỢC)
-builder.Services.AddScoped<Func<IContextAccessor>>(sp => () => sp.GetRequiredService<IContextAccessor>());
-
 
 var app = builder.Build();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -136,6 +131,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 // Kích hoạt Authentication & Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
