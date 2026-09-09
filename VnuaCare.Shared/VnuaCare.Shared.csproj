@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -6,12 +6,21 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+ <ItemGroup>
+    <Folder Include="DataProvider\" />
+    <Folder Include="Helper\Response\" />
+  </ItemGroup>
+  
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+         <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoMapper.Collection" Version="10.0.0" />
+    <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
     </ItemGroup>
 
 </Project>

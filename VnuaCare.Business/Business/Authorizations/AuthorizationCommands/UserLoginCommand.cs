@@ -25,7 +25,8 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
         private readonly IBcryptPasswordHasher _passwordHasher;
         private readonly IStringLocalizer<UserLoginCommand> _localizer;
         private readonly IJwtService _jwtService;
-        private ICacheService _cacheService;
+        private readonly ICacheService _cacheService;
+
         public Handler(
             VnuaCareDataContext dataContext,
             IBcryptPasswordHasher passwordHasher,
@@ -43,50 +44,75 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
         public async Task<LoginResponseModel> Handle(UserLoginCommand request, CancellationToken cancellationToken)
         {
             var model = request.LoginModel;
-            var inputIdentifier = model.LoginIdentifier?.Trim() ?? string.Empty;
 
-            Log.Information($"[Auth] User Login Attempt: {inputIdentifier}");
+            Log.Information($"User Login Attempt: {model.LoginIdentifier}");
 
+            // Tìm user theo username hoặc email
             var user = await _dataContext.VcUsers
-                .FirstOrDefaultAsync(x => 
-                    x.IsActive && 
-                    (x.Username == inputIdentifier || x.Email == inputIdentifier), 
-                    cancellationToken);
+                .FirstOrDefaultAsync(u => u.IsActive && (u.Username == model.LoginIdentifier || u.Email == model.LoginIdentifier), cancellationToken);
 
             if (user == null || !_passwordHasher.VerifyPassword(model.Password, user.Password))
             {
-                Log.Warning($"[Auth] Login failed for user: {inputIdentifier}");
-                throw new ArgumentException("Tài khoản hoặc mật khẩu không chính xác.");
+                Log.Warning($"Login failed for user: {model.LoginIdentifier}");
+                throw new ArgumentException(_localizer["user.login.failed"]);
             }
 
+            // Tạo claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-                new Claim(ClaimTypes.Role, user.Role ?? "STAFF"),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
+            // Sinh token
             var accessToken = _jwtService.GenerateAccessToken(claims);
             var refreshToken = _jwtService.GenerateRefreshToken();
 
+            // Lưu refresh token vào DB
             user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7); // Cấu hình sau
             _dataContext.VcUsers.Update(user);
             await _dataContext.SaveChangesAsync(cancellationToken);
 
-            Log.Information($"[Auth] User {user.Username} logged in successfully.");
+            Log.Information($"User {user.Username} logged in successfully.");
+
             _cacheService.Remove(AuthorizationConstant.BuildCacheKey());
+
+            string? fullname = null;
+            string? staffcode = null;
+            string? doctorcode = null;
+
+            if (user.Role == "STAFF")
+            {
+                var staff = await _dataContext.VcStaffs.FirstOrDefaultAsync(s => s.UserId == user.UserId, cancellationToken);
+                if (staff != null)
+                {
+                    fullname = staff.FullName;
+                    staffcode = staff.EmployeeCode;
+                }
+            }else if (user.Role == "DOCTOR")
+            {
+                var doctor = await _dataContext.VcDoctors.FirstOrDefaultAsync(d => d.UserId == user.UserId, cancellationToken);
+                if (doctor != null)
+                {
+                    fullname = doctor.FullName;
+                    doctorcode = doctor.DoctorCode;
+                }
+            }
             return new LoginResponseModel
             {
                 UserId = user.UserId,
                 Username = user.Username,
-                Fullname = user.Username,
+                Fullname = fullname,
                 Email = user.Email,
                 Role = user.Role,
+                StaffCode = staffcode,
+                DoctorCode = doctorcode,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime.Value
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime ?? DateTime.Now.AddDays(7)
             };
         }
     }

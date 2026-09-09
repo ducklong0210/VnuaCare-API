@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using VnuaCare.Business.Business.Doctors;
+using VnuaCare.Business.Business.Staffs;
 using VnuaCare.Data.Systems.Context;
 
 namespace VnuaCare.Business.Business.Users;
@@ -26,9 +28,9 @@ public record UserModel : UserBaseModel
 {
     // public string? DisplayName { get; init; }
     // Hồ sơ Cán bộ (nếu là STAFF)
-    public StaffProfile? StaffProfile { get; set; }
+    public StaffModel? StaffProfile { get; set; }
     // Hồ sơ Bác sĩ (nếu là DOCTOR)
-    public DoctorProfile? DoctorProfile { get; set; }
+    public DoctorModel? DoctorProfile { get; set; }
 }
 
 public record UpdatePasswordUserModel
@@ -46,29 +48,4 @@ public record UpdatePasswordUserModel
         entity.Password = this.NewPassword;
     }
     
-}
-
-public class StaffProfile
-{
-    public int StaffId { get; init; }
-    public string Code { get; init; }
-    public string FullName { get; init; }
-    public string Gender { get; init; }
-    public DateTime DateOfBirth { get; init; }
-    public int DepartmentId { get; init; }
-    public string? DepartmentName { get; init; }
-    public string? AcademicTitle { get; init; }
-    public string? JobTitle { get; init; }
-    public string? PhoneNumber { get; init; }
-    public string? Adress { get; init; }
-}
-
-public class DoctorProfile
-{
-    public int DoctorId { get; init; }
-    public string Code { get; init; }
-    public string FullName { get; init; }
-    public string Specialty { get; init; }
-    public string? LicenseNumber { get; init; }
-    public string HospitalName { get; init; }
 }

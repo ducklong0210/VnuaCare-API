@@ -19,12 +19,14 @@
     <PackageReference Include="Microsoft.AspNetCore.SignalR.StackExchangeRedis" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.2" />
 
-  </ItemGroup>
+  </ItemGroup> 
 
-  <ItemGroup>
+    <ItemGroup>
+    <ProjectReference Include="..\VnuaCare.Shared\VnuaCare.Shared.csproj" />
     <ProjectReference Include="..\VnuaCare.Data\VnuaCare.Data.csproj" />
     <ProjectReference Include="..\VnuaCare.Business\VnuaCare.Business.csproj" />
     <ProjectReference Include="..\VnuaCare.Infrastructure\VnuaCare.Infrastructure.csproj" />
   </ItemGroup>
+
 
 </Project>
