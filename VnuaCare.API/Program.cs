@@ -59,6 +59,19 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
+    c.DocInclusionPredicate((docName, apiDesc) => true);
+    c.TagActionsBy(api =>
+    {
+        if (api.GroupName != null)
+        {
+            return new[] { api.GroupName };
+        }
+        if (api.ActionDescriptor is Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor controllerActionDescriptor)
+        {
+            return new[] { controllerActionDescriptor.ControllerName };
+        }
+        return new[] { "Uncategorized" };
+    });
 });
 
 // 3. Kết nối CSDL SQL Server qua Entity Framework Core

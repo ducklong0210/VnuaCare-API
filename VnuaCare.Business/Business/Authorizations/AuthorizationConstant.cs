@@ -2,7 +2,7 @@ namespace VnuaCare.Business.Business.Authorizations;
 
 public class AuthorizationConstant
 {
-    public const string CachePrefix = "appoinment";
+    public const string CachePrefix = "authorization";
     private const string SelectItemCacheSubfix = "select-item";
     
     public static string BuildCacheKey(string id = "")

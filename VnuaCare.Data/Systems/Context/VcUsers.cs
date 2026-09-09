@@ -5,7 +5,7 @@ using VnuaCare.Shared.Model;
 namespace VnuaCare.Data.Systems.Context;
 
 [Table("vc_users")]
-public class VcUsers : EntityBase.BaseEntity
+public class VcUsers : BaseEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

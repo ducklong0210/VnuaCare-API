@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using VnuaCare.Business.Business.Doctors;
 using VnuaCare.Business.Business.Services;
+using VnuaCare.Business.Business.Staffs;
 using VnuaCare.Business.Business.Users;
 using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
@@ -67,7 +69,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                             .FirstOrDefaultAsync(x => x.UserId == entity.UserId, cancellationToken);
                         if (staff != null)
                         {
-                            entity.StaffProfile = new StaffProfile
+                            entity.StaffProfile = new StaffModel
                             {
                                 StaffId = staff.StaffId,
                                 Code = staff.EmployeeCode,
@@ -88,7 +90,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                             .FirstOrDefaultAsync(x => x.UserId == entity.UserId, cancellationToken);
                         if (doctor != null)
                         {
-                            entity.DoctorProfile = new DoctorProfile
+                            entity.DoctorProfile = new DoctorModel
                             {
                                 DoctorId = doctor.DoctorId,
                                 Code = doctor.DoctorCode,
