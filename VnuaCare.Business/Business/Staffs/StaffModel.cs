@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using VnuaCare.Business;
 
 namespace VnuaCare.Business.Business.Staffs;
 
@@ -25,7 +26,6 @@ public record StaffModel : StaffBaseModel
     public string? DepartmentName { get; init; }
     public string? Email { get; init; }
     public bool IsActive { get; init; } = true;
-    // public List<>
 }
 
 /// <summary>
@@ -44,7 +44,7 @@ public record CreateStaffModel :  StaffBaseModel
     public string StaffCode { get; init; } 
     [Required(ErrorMessage = "Họ và tên không được để trống")]
     public string FullName { get; init; }
-    public string Gender { get; init; } = "NAM";
+    public string Gender { get; init; }
     public DateTime? DateOfBirth { get; init; }
     [Required(ErrorMessage = "Vui lòng chọn Khoa/Phòng ban")]
     public int DepartmentId { get; init; } 
@@ -52,4 +52,9 @@ public record CreateStaffModel :  StaffBaseModel
     public string? JobTitle { get; init; }     
     public string? PhoneNumber { get; init; }
     public string? Address { get; init; }
+}
+
+public record StaffFilterModel : BaseQueryFilterModel
+{
+    public int? DepartmentId { get; set; }
 }

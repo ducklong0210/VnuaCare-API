@@ -13,7 +13,7 @@ public class VcStaffs
     public int StaffId { get; set; }
 
     [Column("user_id", TypeName = "int")]
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
     [Required]
     [Column("department_id", TypeName = "int")]
@@ -48,4 +48,7 @@ public class VcStaffs
 
     [ForeignKey("UserId")]
     public virtual VcUsers? User { get; set; }
+    
+    [ForeignKey("DepartmentId")]
+    public virtual VcDepartments? Department { get; set; }
 }

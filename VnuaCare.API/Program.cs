@@ -77,6 +77,8 @@ builder.Services.AddSwaggerGen(c =>
 // 3. Kết nối CSDL SQL Server qua Entity Framework Core
 builder.Services.AddDbContext<VnuaCareDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<VnuaCareReadDataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 4. Đăng ký MediatR xử lý Command & Query
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UserLoginCommand).Assembly));

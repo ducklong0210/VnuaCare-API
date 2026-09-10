@@ -53,6 +53,19 @@ public class ResponseObject<T> : Response
     public T Data { get; set; }
 }
 
+/// <summary>
+/// Phân trang
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class PaginationList<T>
+{
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+    public int DataCount { get; set; }
+    public List<T> Data { get; set; }
+}
+
 public enum StatusCode
 {
     Success = 200,

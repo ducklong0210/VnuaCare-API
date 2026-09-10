@@ -16,12 +16,12 @@ public class GetMyProfileQuery : IRequest<UserModel>
 {
     public class Handler : IRequestHandler<GetMyProfileQuery, UserModel>
     {
-        private readonly VnuaCareDataContext _dataContext;
+        private readonly VnuaCareReadDataContext _dataContext;
         private readonly IContextAccessor _contextAccessor;
         private readonly ICacheService _cacheService;
 
         public Handler(
-            VnuaCareDataContext context, 
+            VnuaCareReadDataContext context, 
             IContextAccessor contextAccessor,
             ICacheService cacheService)
         {
@@ -66,6 +66,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                 {
                     case "STAFF":
                         var staff = await _dataContext.VcStaffs.AsNoTracking()
+                            .Include(x => x.Department) // thêm để tải dữ liệu sang
                             .FirstOrDefaultAsync(x => x.UserId == entity.UserId, cancellationToken);
                         if (staff != null)
                         {
@@ -80,7 +81,9 @@ public class GetMyProfileQuery : IRequest<UserModel>
                                 AcademicTitle = staff.AcademicTitle,
                                 JobTitle = staff.JobTitle,
                                 PhoneNumber = staff.PhoneNumber,
-                                Adress = staff.Address
+                                Adress = staff.Address,
+                                Email = entity.Email,
+                                DepartmentName = staff.Department?.DepartmentName
                             };
                         }
                         break;
@@ -97,6 +100,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                                 FullName = doctor.FullName,
                                 Specialty = doctor.Specialty,
                                 LicenseNumber = doctor.LicenseNumber,
+                                Email =  entity.Email,
                                 HospitalName = doctor.HospitalName
                             };
                         }

@@ -13,7 +13,7 @@ public abstract record UserBaseModel
     public string Username { get; init; }
 
     [Required(ErrorMessage = "user.email.required")]
-    public string Email { get; init; }
+    public string? Email { get; init; }
 
     [Required(ErrorMessage = "user.role.required")]
     public string Role { get; init; }
