@@ -41,8 +41,10 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
 
             var query = _dataContext.VcStaffs.AsNoTracking();
             
-            if (currentUserRole != Role.SUPER_ADMIN.ToString()){
-                throw new UnauthorizedAccessException("Bạn không có quyền xem danh sách cán bộ");
+            if (currentUserRole != Role.SUPER_ADMIN.ToString() &&
+                currentUserRole != Role.HEALTH_ADMIN.ToString())
+            {
+                throw new UnauthorizedAccessException("Bạn không có quyền xem danh sách cán bộ.");
             }
 
             if (filter.DepartmentId.HasValue && filter.DepartmentId.Value > 0)
@@ -85,14 +87,14 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
                 FullName = x.FullName,
                 Gender =  x.Gender,
                 DateOfBirth =  x.DateOfBirth,
-                DepartmentId = x.DepartmentId,
+                // DepartmentId = x.DepartmentId,
+                DepartmentName = x.Department.DepartmentName,
                 AcademicTitle =   x.AcademicTitle,
                 PhoneNumber = x.PhoneNumber,
                 JobTitle = x.JobTitle,
                 Adrress = x.Address,
                 AvatarUrl = string.IsNullOrEmpty(x.AvatarUrl) ? "" : x.AvatarUrl,
-                Email = x.User.Email,
-                DepartmentName = x.Department.DepartmentName
+                Email = x.User.Email
             }).ToListAsync(cancellationToken);
 
             return new PaginationList<StaffModel>()

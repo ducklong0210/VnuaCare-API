@@ -1,3 +1,4 @@
+using VnuaCare.Shared.Utils;
 /**
  * Nghiệp vụ đổi mật khẩu: Xác thực mật khẩu cũ và băm mật khẩu mới bằng BCrypt
  */
@@ -63,6 +64,16 @@ public class ChangePassUserCommand : IRequest<Unit>
             if (user == null)
             {
                 throw new ArgumentException("Tài khoản không tồn tại hoặc đã bị khóa.");
+            }
+
+            if (string.IsNullOrWhiteSpace(model.NewPassword) || !ValidationUtils.IsPassword(model.NewPassword))
+            {
+                throw new ArgumentException("Mật khẩu mới phải có tối thiểu 6 ký tự, gồm ít nhất 1 chữ cái và 1 chữ số.");
+            }
+
+            if (model.NewPassword != model.ConfirmPassword)
+            {
+                throw new ArgumentException("Mật khẩu xác nhận không khớp với mật khẩu mới.");
             }
 
             // Xác thực mật khẩu cũ bằng BCrypt

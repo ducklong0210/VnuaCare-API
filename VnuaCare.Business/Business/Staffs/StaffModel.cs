@@ -25,6 +25,8 @@ public abstract record StaffBaseModel
     [Required(ErrorMessage = "Vui lòng chọn Khoa/Phòng ban")]
     public int DepartmentId { get; init; }
     public string? DepartmentName { get; init; }
+
+    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
     public string? Email { get; init; }
     public bool IsActive { get; init; } = true;
     
@@ -55,8 +57,6 @@ public record CreateStaffModel :  StaffBaseModel
     [Required(ErrorMessage = "Mật khẩu không được để trống")]
     public string Password { get; init; } 
     
-    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
-    public string? Email { get; init; }
 }
 
 public record StaffFilterModel : BaseQueryFilterModel

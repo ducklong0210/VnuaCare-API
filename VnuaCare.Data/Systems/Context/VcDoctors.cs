@@ -13,7 +13,7 @@ public class VcDoctors
     public int DoctorId { get; set; }
 
     [Column("user_id", TypeName = "int")]
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
     [Required]
     [Column("doctor_code", TypeName = "varchar(50)")]
@@ -24,8 +24,8 @@ public class VcDoctors
     public string FullName { get; set; } = string.Empty;
 
     [Required]
-    [Column("specialty", TypeName = "nvarchar(100)")]
-    public string Specialty { get; set; } = string.Empty;
+    [Column("specialty_id", TypeName = "int")]
+    public int SpecialtyId { get; set; }
 
     [Column("license_number", TypeName = "varchar(50)")]
     public string? LicenseNumber { get; set; }
@@ -35,4 +35,7 @@ public class VcDoctors
 
     [ForeignKey("UserId")]
     public virtual VcUsers? User { get; set; }
+
+    [ForeignKey("SpecialtyId")]
+    public virtual VcSpecialties? Specialty { get; set; }
 }
