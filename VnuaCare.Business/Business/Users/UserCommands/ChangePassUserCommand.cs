@@ -1,3 +1,7 @@
+/**
+ * Nghiệp vụ đổi mật khẩu: Xác thực mật khẩu cũ và băm mật khẩu mới bằng BCrypt
+ */
+
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -23,10 +27,10 @@ public class ChangePassUserCommand : IRequest<Unit>
 
     public class Handler : IRequestHandler<ChangePassUserCommand, Unit>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly IBcryptPasswordHasher _passwordHasher;
-        private readonly IContextAccessor _contextAccessor;
-        private readonly ICacheService _cacheService;
+        private readonly VnuaCareDataContext _dataContext;        // Kết nối CSDL để kiểm tra và cập nhật mật khẩu
+        private readonly IBcryptPasswordHasher _passwordHasher;  // Dịch vụ xác thực và băm mật khẩu bằng BCrypt
+        private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất UserId từ Token người đang đăng nhập
+        private readonly ICacheService _cacheService;            // Dịch vụ xóa Cache hồ sơ sau khi đổi mật khẩu
 
         public Handler(
             VnuaCareDataContext dataContext,
@@ -40,6 +44,7 @@ public class ChangePassUserCommand : IRequest<Unit>
             _cacheService = cacheService;
         }
 
+        // Xử lý kiểm tra mật khẩu cũ, băm mật khẩu mới và lưu vào CSDL
         public async Task<Unit> Handle(ChangePassUserCommand request, CancellationToken cancellationToken)
         {
             var model = request.Model;

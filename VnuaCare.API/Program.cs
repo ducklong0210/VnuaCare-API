@@ -3,6 +3,7 @@ using System.Text;
 using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using VnuaCare.Business.Business.Authorizations.AuthorizationCommands;
@@ -77,6 +78,8 @@ builder.Services.AddSwaggerGen(c =>
 // 3. Kết nối CSDL SQL Server qua Entity Framework Core
 builder.Services.AddDbContext<VnuaCareDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<VnuaCareReadDataContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 4. Đăng ký MediatR xử lý Command & Query
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UserLoginCommand).Assembly));
@@ -120,6 +123,10 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
+// tạm thời chưa cần bản dịch
+// builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+// builder.Services.AddSingleton<IStringLocalizer, JsonStringLocalizer>();
 
 // 7. Đăng ký HttpContextAccessor và ContextAccessor Wrapper
 builder.Services.AddHttpContextAccessor();

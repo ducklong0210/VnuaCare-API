@@ -1,3 +1,7 @@
+/**
+ * Nghiệp vụ đăng xuất: Vô hiệu hóa Refresh Token và giải phóng cache phiên làm việc
+ */
+
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +21,8 @@ public class UserLogoutCommand : IRequest<Unit>
 
     public class Handler : IRequestHandler<UserLogoutCommand, Unit>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly ICacheService _cacheService;
+        private readonly VnuaCareDataContext _dataContext; // Kết nối CSDL để xóa Refresh Token
+        private readonly ICacheService _cacheService;     // Dịch vụ quản lý bộ nhớ đệm Cache
 
         public Handler(VnuaCareDataContext dataContext, ICacheService cacheService)
         {
@@ -26,6 +30,7 @@ public class UserLogoutCommand : IRequest<Unit>
             _cacheService = cacheService;
         }
 
+        // Xử lý đăng xuất: Vô hiệu hóa Refresh Token và xóa cache phiên làm việc
         public async Task<Unit> Handle(UserLogoutCommand request, CancellationToken cancellationToken)
         {
             var user = await _dataContext.VcUsers.FirstOrDefaultAsync(u => u.RefreshToken == request.Model.RefreshToken,

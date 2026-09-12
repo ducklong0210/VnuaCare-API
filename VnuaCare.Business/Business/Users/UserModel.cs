@@ -1,3 +1,7 @@
+/**
+ * Định nghĩa DTO Tài khoản người dùng (UserModel, UserBaseModel, UpdatePasswordUserModel)
+ */
+
 using System.ComponentModel.DataAnnotations;
 using VnuaCare.Business.Business.Doctors;
 using VnuaCare.Business.Business.Staffs;
@@ -9,13 +13,13 @@ public abstract record UserBaseModel
 {
     public int UserId { get; init; }
 
-    [Required(ErrorMessage = "user.username.required")]
+    [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
     public string Username { get; init; }
 
-    [Required(ErrorMessage = "user.email.required")]
-    public string Email { get; init; }
+    [Required(ErrorMessage = "Email không được để trống")]
+    public string? Email { get; init; }
 
-    [Required(ErrorMessage = "user.role.required")]
+    [Required(ErrorMessage = "Role không được để trống")]
     public string Role { get; init; }
 
     public bool IsActive { get; init; } = true;

@@ -1,3 +1,7 @@
+/**
+ * DbContext Ghi: Quản lý lưu trữ, thêm, sửa, xóa dữ liệu vào CSDL SQL Server
+ */
+
 using Microsoft.EntityFrameworkCore;
 using VnuaCare.Data.Systems.Context;
 using VnuaCare.Shared.ContextAccessor;
@@ -21,4 +25,5 @@ public class VnuaCareDataContext : DbContext
     public DbSet<VcUsers> VcUsers { get; set; }
     public DbSet<VcStaffs> VcStaffs { get; set; }
     public DbSet<VcDoctors> VcDoctors { get; set; }
+    public DbSet<VcDepartments> VcDepartments { get; set; } 
 }

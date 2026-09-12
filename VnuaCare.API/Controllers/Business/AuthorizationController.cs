@@ -1,3 +1,7 @@
+/**
+ * Quản lý xác thực người dùng (Đăng nhập, Làm mới Token, Đăng xuất)
+ */
+
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +14,7 @@ namespace VnuaCare.API.Controllers.Business;
 
 [ApiController]
 [Route("api/v1/authorization")]
-[ApiExplorerSettings(GroupName = "Xác thực")]
+[ApiExplorerSettings(GroupName = "Xác thực người dùng")]
 public class AuthorizationController : ApiControllerBase
 {
     private readonly IMediator _mediator;

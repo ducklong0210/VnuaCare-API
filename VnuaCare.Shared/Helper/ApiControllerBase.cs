@@ -47,9 +47,10 @@ public class ApiControllerBase : ControllerBase
         catch (Exception ex)
         {
             stopwatch.Stop();
+            var errorMsg = ex.InnerException != null ? $"{ex.Message} --> {ex.InnerException.Message}" : ex.Message;
             return BadRequest(new ApiResponse<object>(
                 data: null,
-                message: ex.Message,
+                message: errorMsg,
                 statusCode: 400,
                 traceId: HttpContext.TraceIdentifier,
                 duration: stopwatch.ElapsedMilliseconds

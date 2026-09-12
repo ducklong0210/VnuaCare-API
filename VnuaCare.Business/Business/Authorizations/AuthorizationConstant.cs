@@ -1,9 +1,11 @@
+using VnuaCare.Shared.Enums;
+
 namespace VnuaCare.Business.Business.Authorizations;
 
 public class AuthorizationConstant
 {
-    public const string CachePrefix = "authorization";
-    private const string SelectItemCacheSubfix = "select-item";
+    public const string CachePrefix = VnuaCareCacheConstant.AUTHORIZATION;
+    private const string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
     
     public static string BuildCacheKey(string id = "")
     {

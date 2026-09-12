@@ -1,3 +1,7 @@
+/**
+ * Nghiệp vụ lấy thông tin cá nhân và hồ sơ Cán bộ/Bác sĩ của tài khoản đang đăng nhập
+ */
+
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using VnuaCare.Business.Business.Doctors;
@@ -16,12 +20,12 @@ public class GetMyProfileQuery : IRequest<UserModel>
 {
     public class Handler : IRequestHandler<GetMyProfileQuery, UserModel>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly IContextAccessor _contextAccessor;
-        private readonly ICacheService _cacheService;
+        private readonly VnuaCareReadDataContext _dataContext; // Kết nối CSDL đọc dữ liệu tối ưu hiệu năng
+        private readonly IContextAccessor _contextAccessor;    // Dịch vụ trích xuất UserId từ Token người đang đăng nhập
+        private readonly ICacheService _cacheService;          // Dịch vụ lưu và đọc dữ liệu từ Cache Redis
 
         public Handler(
-            VnuaCareDataContext context, 
+            VnuaCareReadDataContext context, 
             IContextAccessor contextAccessor,
             ICacheService cacheService)
         {
@@ -30,6 +34,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
             _cacheService = cacheService;
         }
 
+        // Xử lý lấy thông tin tài khoản và nạp kèm hồ sơ Cán bộ hoặc Bác sĩ
         public async Task<UserModel> Handle(GetMyProfileQuery request, CancellationToken cancellationToken)
         {
             // Lấy ID người dùng từ Token
@@ -66,13 +71,14 @@ public class GetMyProfileQuery : IRequest<UserModel>
                 {
                     case "STAFF":
                         var staff = await _dataContext.VcStaffs.AsNoTracking()
+                            .Include(x => x.Department) // thêm để tải dữ liệu sang
                             .FirstOrDefaultAsync(x => x.UserId == entity.UserId, cancellationToken);
                         if (staff != null)
                         {
                             entity.StaffProfile = new StaffModel
                             {
                                 StaffId = staff.StaffId,
-                                Code = staff.EmployeeCode,
+                                StaffCode = staff.EmployeeCode,
                                 FullName = staff.FullName,
                                 Gender = staff.Gender,
                                 DateOfBirth = staff.DateOfBirth,
@@ -80,7 +86,9 @@ public class GetMyProfileQuery : IRequest<UserModel>
                                 AcademicTitle = staff.AcademicTitle,
                                 JobTitle = staff.JobTitle,
                                 PhoneNumber = staff.PhoneNumber,
-                                Adress = staff.Address
+                                Adrress = staff.Address,
+                                Email = entity.Email,
+                                DepartmentName = staff.Department?.DepartmentName
                             };
                         }
                         break;
@@ -97,6 +105,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                                 FullName = doctor.FullName,
                                 Specialty = doctor.Specialty,
                                 LicenseNumber = doctor.LicenseNumber,
+                                Email =  entity.Email,
                                 HospitalName = doctor.HospitalName
                             };
                         }
