@@ -43,14 +43,30 @@ public class DeleteDoctorCommand : IRequest<Unit>
             var doctorId = request.DoctorId;
             Log.Information($"Deleting doctor {doctorId}");
 
-            var data = _dataContext.VcDoctors
+            var data = await _dataContext.VcDoctors
                     .FirstOrDefaultAsync(x => x.DoctorId == doctorId ,cancellationToken);
 
             if (data == null)
             {
                 throw new ArgumentException("doctor not found");
             }
-            var dataUser = await _dataContext.VcUsers.FirstOrDefaultAsync(x => x.UserId == data.User)
+
+            var dataUser = await _dataContext.VcUsers.FirstOrDefaultAsync(x => x.UserId == data.UserId, cancellationToken);
+            if (dataUser != null)
+            {
+                dataUser.IsActive = false;
+                dataUser.UpdatedAt = DateTime.Now;
+                _dataContext.VcUsers.Update(dataUser);
+            }
+            await _dataContext.SaveChangesAsync(cancellationToken);
+             
+             _cacheService.Remove(DoctorConstant.BuildCacheKey(doctorId.ToString()));
+             _cacheService.Remove(DoctorConstant.BuildCacheKey());
+             
+             Log.Information("Deleting success {UserConstant.CachePrefix}: {id}");
+            return Unit.Value;
+            
+            
         }
         
     }
