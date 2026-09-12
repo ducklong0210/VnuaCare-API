@@ -1,0 +1,5 @@
+{
+  "user.login.failed": "Tài khoản hoặc mật khẩu không chính xác.",
+  "user.not_found": "Không tìm thấy người dùng này.",
+  "forbidden": "Bạn không có quyền thực hiện chức năng này."
+}

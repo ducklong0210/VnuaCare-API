@@ -1,3 +1,7 @@
+/**
+ * DbContext Đọc: Chuyên dùng để truy vấn, lọc danh sách (AsNoTracking) tối ưu hiệu năng
+ */
+
 using Microsoft.EntityFrameworkCore;
 using VnuaCare.Data.Systems.Context;
 

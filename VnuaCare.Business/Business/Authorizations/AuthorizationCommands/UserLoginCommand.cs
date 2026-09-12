@@ -1,3 +1,7 @@
+/**
+ * Nghiệp vụ đăng nhập: Xác thực mật khẩu BCrypt, cấp JWT Access Token và Refresh Token
+ */
+
 using System.Security.Claims;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +25,11 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
 
     public class Handler : IRequestHandler<UserLoginCommand, LoginResponseModel>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly IBcryptPasswordHasher _passwordHasher;
-        private readonly IStringLocalizer<UserLoginCommand> _localizer;
-        private readonly IJwtService _jwtService;
-        private readonly ICacheService _cacheService;
+        private readonly VnuaCareDataContext _dataContext;              // Kết nối CSDL để kiểm tra tài khoản và lưu token
+        private readonly IBcryptPasswordHasher _passwordHasher;        // Dịch vụ xác thực mật khẩu bằng thuật toán BCrypt
+        private readonly IStringLocalizer<UserLoginCommand> _localizer;// Dịch vụ đa ngôn ngữ thông báo lỗi
+        private readonly IJwtService _jwtService;                      // Dịch vụ sinh JWT Access Token và Refresh Token
+        private readonly ICacheService _cacheService;                  // Dịch vụ quản lý bộ nhớ đệm Cache
 
         public Handler(
             VnuaCareDataContext dataContext,
@@ -41,6 +45,7 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
             _cacheService = cacheService;
         }
 
+        // Xử lý xác thực tài khoản, mật khẩu và cấp Token đăng nhập
         public async Task<LoginResponseModel> Handle(UserLoginCommand request, CancellationToken cancellationToken)
         {
             var model = request.LoginModel;
@@ -54,7 +59,7 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
             if (user == null || !_passwordHasher.VerifyPassword(model.Password, user.Password))
             {
                 Log.Warning($"Login failed for user: {model.LoginIdentifier}");
-                throw new ArgumentException(_localizer["user.login.failed"]);
+                throw new ArgumentException("Tài khoản hoặc mật khẩu không chính xác.");
             }
 
             // Tạo claims
@@ -76,7 +81,7 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
             _dataContext.VcUsers.Update(user);
             await _dataContext.SaveChangesAsync(cancellationToken);
 
-            Log.Information($"User {user.Username} logged in successfully.");
+            Log.Information($"User {user.Username} Đăng nhập thành công .");
 
             _cacheService.Remove(AuthorizationConstant.BuildCacheKey());
 

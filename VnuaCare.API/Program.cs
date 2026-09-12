@@ -3,6 +3,7 @@ using System.Text;
 using Dapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using VnuaCare.Business.Business.Authorizations.AuthorizationCommands;
@@ -122,6 +123,10 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
+// tạm thời chưa cần bản dịch
+// builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+// builder.Services.AddSingleton<IStringLocalizer, JsonStringLocalizer>();
 
 // 7. Đăng ký HttpContextAccessor và ContextAccessor Wrapper
 builder.Services.AddHttpContextAccessor();

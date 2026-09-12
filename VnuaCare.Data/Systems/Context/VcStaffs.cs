@@ -45,7 +45,9 @@ public class VcStaffs
 
     [Column("address", TypeName = "nvarchar(255)")]
     public string? Address { get; set; }
-
+    [Column("avatar_url", TypeName = "varchar(255)")]
+    public string? AvatarUrl { get; set; }
+    
     [ForeignKey("UserId")]
     public virtual VcUsers? User { get; set; }
     

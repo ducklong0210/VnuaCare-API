@@ -1,3 +1,7 @@
+/**
+ * Quản lý hồ sơ cá nhân và đổi mật khẩu người dùng
+ */
+
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

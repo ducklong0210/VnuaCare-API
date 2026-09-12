@@ -1,3 +1,7 @@
+/**
+ * Định nghĩa các DTO truyền nhận dữ liệu cho phân hệ Xác thực (Login, Token, Logout)
+ */
+
 using System.ComponentModel.DataAnnotations;
 
 namespace VnuaCare.Business.Business.Authorizations;

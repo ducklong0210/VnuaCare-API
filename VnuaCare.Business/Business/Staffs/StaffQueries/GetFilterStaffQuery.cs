@@ -1,3 +1,7 @@
+/**
+ * Nghiệp vụ lọc, tìm kiếm và phân trang danh sách Cán bộ theo Khoa/Phòng ban
+ */
+
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
@@ -19,8 +23,8 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
 
     public class Handler : IRequestHandler<GetFilterStaffQuery, PaginationList<StaffModel>>
     {
-        private readonly VnuaCareReadDataContext _dataContext;
-        private readonly IContextAccessor _contextAccessor;
+        private readonly VnuaCareReadDataContext _dataContext; // Kết nối CSDL đọc danh sách tối ưu hiệu năng
+        private readonly IContextAccessor _contextAccessor;    // Dịch vụ kiểm tra Role của người dùng để phân quyền
 
         public Handler(VnuaCareReadDataContext dataContext, IContextAccessor contextAccessor)
         {
@@ -28,6 +32,7 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
             _contextAccessor = contextAccessor;
         }
 
+        // Xử lý tìm kiếm, lọc theo Khoa/Phòng ban và phân trang danh sách Cán bộ
         public async Task<PaginationList<StaffModel>> Handle(GetFilterStaffQuery request,
             CancellationToken cancellationToken)
         {
@@ -76,7 +81,7 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
             {
                 UserId = x.UserId,
                 StaffId = x.StaffId,
-                Code = x.EmployeeCode,
+                StaffCode = x.EmployeeCode,
                 FullName = x.FullName,
                 Gender =  x.Gender,
                 DateOfBirth =  x.DateOfBirth,
@@ -84,7 +89,8 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
                 AcademicTitle =   x.AcademicTitle,
                 PhoneNumber = x.PhoneNumber,
                 JobTitle = x.JobTitle,
-                Adress = x.Address,
+                Adrress = x.Address,
+                AvatarUrl = string.IsNullOrEmpty(x.AvatarUrl) ? "" : x.AvatarUrl,
                 Email = x.User.Email,
                 DepartmentName = x.Department.DepartmentName
             }).ToListAsync(cancellationToken);

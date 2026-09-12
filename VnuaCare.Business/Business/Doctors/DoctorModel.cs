@@ -1,3 +1,7 @@
+/**
+ * Định nghĩa cấu trúc dữ liệu và DTO cho Bác sĩ (DoctorModel, CreateDoctorModel, DoctorFilterModel)
+ */
+
 using System.ComponentModel.DataAnnotations;
 
 namespace VnuaCare.Business.Business.Doctors;
