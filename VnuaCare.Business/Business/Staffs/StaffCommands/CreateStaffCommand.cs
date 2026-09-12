@@ -50,7 +50,7 @@ public class CreateStaffCommand : IRequest<Unit>
             var model = request.Model;
             Log.Information("Bắt đầu thêm cán bộ mới: " + JsonSerializer.Serialize(model));
            
-            #region 1. Phân quyền người thực hiện
+            #region Phân quyền người thực hiện
             var currentUserRole = _contextAccessor.Role;
 
             // Chấp nhận SUPER_ADMIN, hoặc HEALTH_ADMIN

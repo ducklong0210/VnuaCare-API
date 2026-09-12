@@ -101,9 +101,9 @@ public class GetMyProfileQuery : IRequest<UserModel>
                             entity.DoctorProfile = new DoctorModel
                             {
                                 DoctorId = doctor.DoctorId,
-                                Code = doctor.DoctorCode,
+                                DoctorCode = doctor.DoctorCode,
                                 FullName = doctor.FullName,
-                                Specialty = doctor.Specialty,
+                                SpecialtyId = doctor.SpecialtyId,
                                 LicenseNumber = doctor.LicenseNumber,
                                 Email =  entity.Email,
                                 HospitalName = doctor.HospitalName

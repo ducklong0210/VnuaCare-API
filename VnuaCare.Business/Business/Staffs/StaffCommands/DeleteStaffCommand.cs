@@ -38,8 +38,9 @@ public class DeleteStaffCommand : IRequest<Unit>
 
         public async Task<Unit> Handle(DeleteStaffCommand request, CancellationToken cancellationToken)
         {
-            if (_contextAccessor.Role != Role.SUPER_ADMIN.ToString() &&
-                _contextAccessor.Role != Role.HEALTH_ADMIN.ToString())
+            var currentUserRole = _contextAccessor.Role;
+            if (currentUserRole != Role.SUPER_ADMIN.ToString() &&
+                currentUserRole != Role.HEALTH_ADMIN.ToString())
             {
                 throw new UnauthorizedAccessException("Bạn không có quyền xóa cán bộ.");
             }
@@ -62,7 +63,7 @@ public class DeleteStaffCommand : IRequest<Unit>
             if (dataUser != null)
             {
                 dataUser.IsActive = false;
-                dataUser.UpdatedAt = DateTime.UtcNow;
+                dataUser.UpdatedAt = DateTime.Now;
                 // _dataContext.VcUsers.Remove(dataUser);
                 _dataContext.VcUsers.Update(dataUser);
             }
