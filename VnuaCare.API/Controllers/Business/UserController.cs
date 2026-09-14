@@ -9,6 +9,7 @@ using VnuaCare.Business.Business.Users;
 using VnuaCare.Business.Business.Users.UserCommands;
 using VnuaCare.Business.Business.Users.UserQueries;
 using VnuaCare.Shared.Helper;
+using VnuaCare.Shared.Utils;
 
 namespace VnuaCare.API.Controllers.Business;
 
@@ -18,7 +19,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/user")]
 [ApiExplorerSettings(GroupName = "Tài khoản & Hồ sơ cá nhân")]
-[Authorize] // Bắt buộc người dùng phải đăng nhập và gửi kèm JWT Bearer Token
+// [Authorize] // Bắt buộc người dùng phải đăng nhập và gửi kèm JWT Bearer Token
 public class UserController : ApiControllerBase
 {
     private readonly IMediator _mediator;
@@ -32,6 +33,7 @@ public class UserController : ApiControllerBase
     /// Lấy thông tin cá nhân và hồ sơ chuyên môn của người đang đăng nhập
     /// </summary>
     [HttpGet("me")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMyProfile()
     {
         return await ExecuteFuntion(async () =>
@@ -44,6 +46,7 @@ public class UserController : ApiControllerBase
     /// Đổi mật khẩu tài khoản đang đăng nhập
     /// </summary>
     [HttpPost("change-password")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
     public async Task<IActionResult> ChangePassword([FromBody] UpdatePasswordUserModel model)
     {
         return await ExecuteFuntion(async () =>

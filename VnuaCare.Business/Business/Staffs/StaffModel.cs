@@ -66,8 +66,8 @@ public record StaffFilterModel : BaseQueryFilterModel
 
 public record UpdateStaffModel : StaffBaseModel
 {
-    public List<int>? DepartmentIds { get; set; }
-    public int? ModifiedStaffId { get; set; }
+    // public List<int>? DepartmentIds { get; set; }
+    // public int? ModifiedStaffId { get; set; }
     public void UpdateEntity(VcStaffs vcStaffs)
     {
         vcStaffs.FullName = this.FullName;

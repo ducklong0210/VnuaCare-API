@@ -1,9 +1,16 @@
+/**
+ * Thực thể ánh xạ bảng tài khoản người dùng (vc_users)
+ */
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using VnuaCare.Shared.Model;
 
 namespace VnuaCare.Data.Systems.Context;
 
+/// <summary>
+/// Bảng tài khoản người dùng đăng nhập hệ thống
+/// </summary>
 [Table("vc_users")]
 public class VcUsers : BaseEntity
 {

@@ -165,7 +165,7 @@ public class CreateStaffCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 5. Xóa Cache danh sách cán bộ để cập nhật dữ liệu mới
+            #region Xóa Cache danh sách cán bộ để cập nhật dữ liệu mới
             _cacheService.Remove(VnuaCareCacheConstant.STAFF);
             _cacheService.Remove(VnuaCareCacheConstant.LIST_SELECT);
             #endregion

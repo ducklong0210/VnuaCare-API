@@ -1,7 +1,15 @@
+/**
+ * Thực thể ánh xạ bảng danh mục Khoa / Phòng ban Học viện Nông nghiệp (vc_departments)
+ */
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VnuaCare.Data.Systems.Context;
+
+/// <summary>
+/// Bảng danh mục các Khoa, Viện, Phòng ban thuộc Học viện Nông nghiệp Việt Nam
+/// </summary>
 [Table("vc_departments")]
 public class VcDepartments
 {
