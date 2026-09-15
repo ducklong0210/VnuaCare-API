@@ -17,26 +17,26 @@ public class VcUsers : BaseEntity
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("user_id", TypeName = "int")]
-    public int UserId { get; set; }
+    public int UserId { get; set; } // Khóa chính: ID tài khoản người dùng
 
     [Required]
     [Column("username", TypeName = "varchar(100)")]
-    public string Username { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty; // Tên đăng nhập tài khoản
 
     [Required]
     [Column("password_hash", TypeName = "varchar(255)")]
-    public string Password { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty; 
 
     [Column("email", TypeName = "varchar(255)")]
-    public string? Email { get; set; }
+    public string? Email { get; set; } 
     
     [Required]
     [Column("role", TypeName = "varchar(30)")]
-    public string Role { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty; // Vai trò phân quyền 
 
     [Column("refresh_token", TypeName = "varchar(255)")]
-    public string? RefreshToken { get; set; }
+    public string? RefreshToken { get; set; } // Mã Refresh Token phục vụ gia hạn phiên đăng nhập
 
     [Column("refresh_token_expiry_time", TypeName = "datetime2")]
-    public DateTime? RefreshTokenExpiryTime { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; } // Thời điểm hết hạn của Refresh Token
 }

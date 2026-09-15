@@ -17,18 +17,18 @@ public class VcStaffs
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("staff_id", TypeName = "int")]
-    public int StaffId { get; set; }
+    public int StaffId { get; set; } // Khóa chính: ID cán bộ
 
     [Column("user_id", TypeName = "int")]
-    public int UserId { get; set; }
+    public int UserId { get; set; } //ID tài khoản người dùng đăng nhập
 
     [Required]
     [Column("department_id", TypeName = "int")]
-    public int DepartmentId { get; set; }
+    public int DepartmentId { get; set; } // phòng ban công tác
 
     [Required]
     [Column("employee_code", TypeName = "varchar(50)")]
-    public string EmployeeCode { get; set; } = string.Empty;
+    public string EmployeeCode { get; set; } = string.Empty; 
 
     [Required]
     [Column("full_name", TypeName = "nvarchar(150)")]
@@ -36,29 +36,29 @@ public class VcStaffs
 
     [Required]
     [Column("gender", TypeName = "varchar(10)")]
-    public string Gender { get; set; } = string.Empty;
+    public string Gender { get; set; } = string.Empty; 
 
     [Column("date_of_birth", TypeName = "date")]
-    public DateTime DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; } 
 
     [Column("academic_title", TypeName = "nvarchar(50)")]
-    public string? AcademicTitle { get; set; }
+    public string? AcademicTitle { get; set; } //  Học vị 
 
     [Column("job_title", TypeName = "nvarchar(100)")]
-    public string? JobTitle { get; set; }
+    public string? JobTitle { get; set; } // Chức vụ 
 
     [Column("phone_number", TypeName = "varchar(20)")]
-    public string? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; } 
 
     [Column("address", TypeName = "nvarchar(255)")]
-    public string? Address { get; set; }
+    public string? Address { get; set; } 
 
     [Column("avatar_url", TypeName = "varchar(255)")]
-    public string? AvatarUrl { get; set; }
+    public string? AvatarUrl { get; set; } 
     
     [ForeignKey("UserId")]
-    public virtual VcUsers? User { get; set; }
-    
+    public virtual VcUsers? User { get; set; } // Tài khoản người dùng
+
     [ForeignKey("DepartmentId")]
-    public virtual VcDepartments? Department { get; set; }
+    public virtual VcDepartments? Department { get; set; } // Khoa / Phòng ban công tác
 }
