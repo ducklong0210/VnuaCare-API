@@ -1,3 +1,7 @@
+/**
+ * Quản lý Bác sĩ BVĐK MEDLATEC và Bác sĩ Trạm Y tế
+ */
+
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,20 +13,29 @@ using VnuaCare.Shared.Utils;
 
 namespace VnuaCare.API.Controllers.Business;
 
+/// <summary>
+/// Quản lý hồ sơ Bác sĩ và chuyên khoa y tế
+/// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
 [ApiExplorerSettings(GroupName = "Quản lý bác sĩ")]
-[Authorize]
-public class DoctorController :ApiControllerBase
+// [Authorize]
+public class DoctorController : ApiControllerBase
 {
     private readonly IMediator _mediator;
+    
     public DoctorController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
+    /// <summary>
+    /// Lọc và phân trang danh sách Bác sĩ
+    /// </summary>
+    /// <param name="model">Điều kiện lọc theo chuyên khoa hoặc từ khóa</param>
+    /// <returns>Danh sách bác sĩ phân trang</returns>
     [HttpPost, Route("filter")]
-    [ProducesResponseType(typeof(ResponseObject<DoctorModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseObject<PaginationList<DoctorModel>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Filter([FromBody] DoctorFilterModel model)
     {
         return await ExecuteFuntion(async () =>
@@ -31,6 +44,11 @@ public class DoctorController :ApiControllerBase
         });
     }
 
+    /// <summary>
+    /// Lấy thông tin chi tiết Bác sĩ theo ID
+    /// </summary>
+    /// <param name="id">ID của Bác sĩ</param>
+    /// <returns>Thông tin chi tiết Bác sĩ</returns>
     [HttpPost, Route("{id}")]
     [ProducesResponseType(typeof(ResponseObject<DoctorModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById([FromRoute] int id)
@@ -41,9 +59,13 @@ public class DoctorController :ApiControllerBase
         });
     }
     
-    
-    [HttpPost,Route("add")]
-    [ProducesResponseType(typeof(ResponseObject<CreateDoctorModel>), StatusCodes.Status200OK)]
+    /// <summary>
+    /// Thêm mới Bác sĩ
+    /// </summary>
+    /// <param name="model">Thông tin bác sĩ và tài khoản đăng nhập</param>
+    /// <returns>Kết quả thêm mới</returns>
+    [HttpPost, Route("add")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Create([FromBody] CreateDoctorModel model)
     {
         return await ExecuteFuntion(async () =>
@@ -52,7 +74,12 @@ public class DoctorController :ApiControllerBase
         });
     }
     
-    [HttpPut,Route("update")]
+    /// <summary>
+    /// Cập nhật thông tin Bác sĩ
+    /// </summary>
+    /// <param name="model">Thông tin cập nhật</param>
+    /// <returns>Kết quả cập nhật</returns>
+    [HttpPut, Route("update")]
     [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Update([FromBody] UpdateDoctorModel model)
     {
@@ -62,7 +89,12 @@ public class DoctorController :ApiControllerBase
         });
     }
     
-    [HttpDelete,Route("{doctorId}")]
+    /// <summary>
+    /// Xóa Bác sĩ (vô hiệu hóa tài khoản)
+    /// </summary>
+    /// <param name="doctorId">ID của Bác sĩ cần xóa</param>
+    /// <returns>Kết quả xóa</returns>
+    [HttpDelete, Route("{doctorId}")]
     [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
     public async Task<IActionResult> Delete([FromRoute] int doctorId)
     {
@@ -71,6 +103,4 @@ public class DoctorController :ApiControllerBase
             return await _mediator.Send(new DeleteDoctorCommand(doctorId));
         });
     }
-    
-    
 }

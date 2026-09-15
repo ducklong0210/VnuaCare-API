@@ -1,9 +1,16 @@
+/**
+ * Thực thể ánh xạ bảng hồ sơ cán bộ Học viện Nông nghiệp (vc_staffs)
+ */
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VnuaCare.Data.Systems.Context;
 
+/// <summary>
+/// Bảng hồ sơ công tác của Cán bộ / Giảng viên Học viện Nông nghiệp
+/// </summary>
 [Table("vc_staffs")]
 public class VcStaffs
 {
@@ -45,6 +52,7 @@ public class VcStaffs
 
     [Column("address", TypeName = "nvarchar(255)")]
     public string? Address { get; set; }
+
     [Column("avatar_url", TypeName = "varchar(255)")]
     public string? AvatarUrl { get; set; }
     

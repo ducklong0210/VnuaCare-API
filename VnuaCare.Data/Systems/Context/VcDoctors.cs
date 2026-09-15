@@ -1,9 +1,16 @@
+/**
+ * Thực thể ánh xạ bảng hồ sơ bác sĩ BVĐK MEDLATEC (vc_doctors)
+ */
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VnuaCare.Data.Systems.Context;
 
+/// <summary>
+/// Bảng hồ sơ chuyên môn của Bác sĩ tham gia khám sức khỏe
+/// </summary>
 [Table("vc_doctors")]
 public class VcDoctors
 {

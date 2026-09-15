@@ -19,11 +19,11 @@ DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Add Controllers
+// Thêm Controllers và Swagger Explorer
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// 2. Cấu hình Swagger UI kèm hỗ trợ JWT Bearer Token
+// Cấu hình Swagger UI kèm hỗ trợ JWT Bearer Token
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "V-Care Health API", Version = "v1" });
@@ -75,21 +75,21 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// 3. Kết nối CSDL SQL Server qua Entity Framework Core
+// Kết nối CSDL SQL Server qua Entity Framework Core
 builder.Services.AddDbContext<VnuaCareDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<VnuaCareReadDataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// 4. Đăng ký MediatR xử lý Command & Query
+// Đăng ký MediatR xử lý Command & Query
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UserLoginCommand).Assembly));
 
-// 5. Đăng ký các dịch vụ cốt lõi (PasswordHasher, JwtService)
+// Đăng ký các dịch vụ cốt lõi (PasswordHasher, JwtService)
 builder.Services.AddScoped<IBcryptPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddLocalization();
 
-// 6. Cấu hình xác thực người dùng bằng JWT Bearer Token
+// Cấu hình xác thực người dùng bằng JWT Bearer Token
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -128,12 +128,12 @@ builder.Services.AddAuthentication(options =>
 // builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
 // builder.Services.AddSingleton<IStringLocalizer, JsonStringLocalizer>();
 
-// 7. Đăng ký HttpContextAccessor và ContextAccessor Wrapper
+// Đăng ký HttpContextAccessor và ContextAccessor Wrapper
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IContextAccessor, HttpContextAccessorWrapper>();
 builder.Services.AddScoped<Func<IContextAccessor>>(sp => () => sp.GetRequiredService<IContextAccessor>());
 
-// 8. Đăng ký Cache Service (Hỗ trợ cả Redis và In-Memory)
+// Đăng ký Cache Service (Hỗ trợ cả Redis và In-Memory)
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddStackExchangeRedisCache(options =>
 {

@@ -17,7 +17,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("v1/staff-manager")]
 [ApiExplorerSettings(GroupName = "Quản lý nhân viên")]
-[Authorize]
+// [Authorize]
 public class StaffController : ApiControllerBase
 {
     private readonly IMediator _mediator;

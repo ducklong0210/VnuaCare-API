@@ -1,7 +1,14 @@
+/**
+ * Thực thể cơ sở (Base Entity) cung cấp các trường theo dõi vòng đời bản ghi
+ */
+
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VnuaCare.Shared.Model;
 
+/// <summary>
+/// Lớp cơ sở dùng chung cho các Entity trong CSDL (lưu trữ thời gian tạo, cập nhật và trạng thái hoạt động)
+/// </summary>
 public class BaseEntity
 {
     /// <summary>
