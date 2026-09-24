@@ -88,7 +88,7 @@ public record HealthCheckupRecordSelectModel : HealthCheckupRecordBaseModel
 /// <summary>
 /// DTO phục vụ lọc và phân trang danh sách hồ sơ khám
 /// </summary>
-public record HealthCheckupRecordFilterModel : HealthCheckupRecordBaseModel
+public record HealthCheckupRecordFilterModel : BaseQueryFilterModel
 {
     public int? CampaignId {get; set;}
     public int? DepartmentId {get; set;}

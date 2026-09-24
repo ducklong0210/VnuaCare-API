@@ -16,14 +16,14 @@ public class VcSpecialties
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("specialty_id", TypeName = "int")]
-    public int SpecialtyId { get; set; }
+    public int SpecialtyId { get; set; } // Khóa chính: ID chuyên khoa y tế
     
     [Column("specialty_description", TypeName = "nvarchar(255)")]
-    public string SpecialtyDescription { get; set; }
+    public string SpecialtyDescription { get; set; } 
     
     [Column("specialty_name", TypeName = "nvarchar(150)")]
-    public string SpecialtyName { get; set; }
+    public string SpecialtyName { get; set; } 
     
     [Column("is_active", TypeName = "bit")]
-    public bool IsActive { get; set; }
+    public bool IsActive { get; set; } 
 }

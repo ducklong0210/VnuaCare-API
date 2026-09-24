@@ -16,17 +16,17 @@ public class VcDepartments
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("department_id", TypeName = "int")]
-    public int DepartmentId { get; set; }
+    public int DepartmentId { get; set; } // Khóa chính: ID khoa / phòng ban
     
     [Required]
     [Column("department_name", TypeName = "nvarchar(255)")]
-    public string DepartmentName { get; set; }
+    public string DepartmentName { get; set; } // Tên khoa / phòng ban (VD: Khoa Công nghệ thông tin)
     
     [Required]
     [Column("department_code", TypeName = "varchar(50)")]
-    public string DepartmentCode { get; set; }
+    public string DepartmentCode { get; set; } // Mã khoa / phòng ban (VD: FITA, AGRI, TCHC)
 
     [Required]
     [Column("is_active", TypeName = "bit")]
-    public bool IsActive { get; set; } = true;
+    public bool IsActive { get; set; } = true; // Trạng thái hoạt động (true: Hoạt động, false: Khóa)
 }
