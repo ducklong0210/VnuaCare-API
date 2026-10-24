@@ -58,3 +58,33 @@ namespace VnuaCare.Business.Business.Authorizations;
     {
     }
 
+    /// <summary>
+    /// Model yêu cầu gửi mã xác nhận quên mật khẩu qua Email
+    /// </summary>
+    public record ForgotPasswordModel
+    {
+        [Required(ErrorMessage = "Email không được để trống")]
+        [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
+        public string Email { get; init; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Model đặt lại mật khẩu mới sau khi xác thực
+    /// </summary>
+    public record ResetPasswordRequestModel
+    {
+        [Required(ErrorMessage = "Email không được để trống")]
+        [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
+        public string Email { get; init; } = string.Empty;
+
+        [Required(ErrorMessage = "Mã xác thực không được để trống")]
+        public string TokenOrOtp { get; init; } = string.Empty;
+
+        [Required(ErrorMessage = "Mật khẩu mới không được để trống")]
+        public string NewPassword { get; init; } = string.Empty;
+
+        [Required(ErrorMessage = "Xác nhận mật khẩu không được để trống")]
+        public string ConfirmPassword { get; init; } = string.Empty;
+    }
+
+

@@ -138,4 +138,66 @@ public record RecordStatusSelectModel
     public string StatusCode { get; init; } = string.Empty;
     public string StatusName { get; init; } = string.Empty;
     public string? Description { get; init; }
-}
+}
+
+/// <summary>
+/// DTO nhận vào khi bác sĩ nhập hoặc cập nhật kết quả khám lâm sàng nội khoa tổng quát
+/// </summary>
+public record SaveInternalMedicineExamModel
+{
+    public int? InternalExamId { get; init; }
+
+    [Required(ErrorMessage = "ID hồ sơ khám sức khỏe không được để trống")]
+    public int RecordId { get; init; }
+
+    public string? CirculatoryDesc { get; init; } // Tuần hoàn / Tim mạch
+    public string? RespiratoryDesc { get; init; } // Hô hấp / Phổi
+    public string? DigestiveDesc { get; init; }   // Tiêu hóa / Ổ bụng
+    public string? UrinaryDesc { get; init; }     // Thận - tiết niệu
+    public string? MusculoskeletalDesc { get; init; } // Cơ xương khớp
+    public string? NeurologicalDesc { get; init; }    // Thần kinh - tâm thần
+    public string? Conclusion { get; init; }      // Kết luận khám nội khoa
+    public string? HealthClass { get; init; }     // Xếp loại sức khỏe nội khoa (Loại I - Loại V)
+    public int? ExaminingDoctorId { get; init; }  // Bác sĩ khám
+}
+
+/// <summary>
+/// DTO chi tiết kết quả khám lâm sàng nội khoa
+/// </summary>
+public record InternalMedicineExamModel : SaveInternalMedicineExamModel
+{
+    public string? ExaminingDoctorName { get; init; }
+    public DateTime CreatedAt { get; init; }
+}
+
+/// <summary>
+/// DTO thêm mới Đợt khám sức khỏe
+/// </summary>
+public record CreateCampaignModel
+{
+    [Required(ErrorMessage = "Tên đợt khám không được để trống")]
+    public string CampaignName { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Mã đợt khám không được để trống")]
+    public string CampaignCode { get; init; } = string.Empty;
+
+    public int Year { get; init; } = DateTime.Now.Year;
+
+    public DateTime StartDate { get; init; } = DateTime.Today;
+
+    public DateTime EndDate { get; init; } = DateTime.Today.AddDays(7);
+
+    public string HospitalPartner { get; init; } = "Bệnh viện Đa khoa MEDLATEC";
+
+    public string Status { get; init; } = "PLANNING";
+}
+
+/// <summary>
+/// DTO cập nhật Đợt khám sức khỏe
+/// </summary>
+public record UpdateCampaignModel : CreateCampaignModel
+{
+    [Required(ErrorMessage = "ID đợt khám không được để trống")]
+    public int CampaignId { get; init; }
+}
+

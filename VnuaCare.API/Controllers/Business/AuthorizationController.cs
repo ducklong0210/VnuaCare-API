@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.Authorizations;
 using VnuaCare.Business.Business.Authorizations.AuthorizationCommands;
+using VnuaCare.Business.Business.Authorizations.AuthorizationQueries;
 using VnuaCare.Shared.Helper;
 using VnuaCare.Shared.Utils;
 
@@ -68,4 +69,50 @@ public class AuthorizationController : ApiControllerBase
             return await _mediator.Send(new UserLogoutCommand(model));
         });
     }
+
+    /// <summary>
+    /// Yêu cầu gửi mã OTP đặt lại mật khẩu qua email
+    /// </summary>
+    /// <param name="model">Email tài khoản</param>
+    /// <returns>Thông báo xác nhận</returns>
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(ResponseObject<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new ForgotPasswordCommand(model));
+        });
+    }
+
+    /// <summary>
+    /// Xác nhận mã OTP và đặt lại mật khẩu mới
+    /// </summary>
+    /// <param name="model">Thông tin mã OTP và mật khẩu mới</param>
+    /// <returns>Kết quả đặt lại mật khẩu</returns>
+    [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new ResetPasswordWithTokenCommand(model));
+        });
+    }
+
+    /// <summary>
+    /// Kiểm tra tính hợp lệ của Token hiện tại và lấy thông tin phiên làm việc
+    /// </summary>
+    /// <returns>Thông tin người dùng hiện tại</returns>
+    [HttpGet("check-token")]
+    [Authorize]
+    [ProducesResponseType(typeof(ResponseObject<CheckTokenResponseModel>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CheckToken()
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new CheckTokenQuery());
+        });
+    }
 }
+

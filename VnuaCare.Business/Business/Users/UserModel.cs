@@ -5,7 +5,9 @@
 using System.ComponentModel.DataAnnotations;
 using VnuaCare.Business.Business.Doctors;
 using VnuaCare.Business.Business.Staffs;
+using VnuaCare.Business;
 using VnuaCare.Data.Systems.Context;
+
 
 namespace VnuaCare.Business.Business.Users;
 
@@ -97,4 +99,72 @@ public record RoleSelectModel
     public string RoleName { get; set; } = string.Empty;
     public string? Description { get; set; }
 }
+
+/// <summary>
+/// DTO tạo mới tài khoản người dùng
+/// </summary>
+public record CreateUserModel
+{
+    [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
+    public string Username { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Mật khẩu không được để trống")]
+    public string Password { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Email không được để trống")]
+    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
+    public string Email { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Vai trò không được để trống")]
+    public string Role { get; init; } = string.Empty;
+
+    public bool IsActive { get; init; } = true;
+}
+
+/// <summary>
+/// DTO cập nhật tài khoản người dùng
+/// </summary>
+public record UpdateUserModel
+{
+    [Required(ErrorMessage = "ID người dùng không được để trống")]
+    public int UserId { get; init; }
+
+    [Required(ErrorMessage = "Email không được để trống")]
+    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
+    public string Email { get; init; } = string.Empty;
+
+    [Required(ErrorMessage = "Vai trò không được để trống")]
+    public string Role { get; init; } = string.Empty;
+
+    public bool IsActive { get; init; } = true;
+
+    public void UpdateEntity(VcUsers entity)
+    {
+        entity.Email = this.Email.Trim();
+        entity.Role = this.Role.Trim().ToUpper();
+        entity.IsActive = this.IsActive;
+        entity.UpdatedAt = DateTime.Now;
+    }
+}
+
+/// <summary>
+/// DTO lọc và phân trang danh sách tài khoản
+/// </summary>
+public record UserFilterModel : BaseQueryFilterModel
+{
+    public string? Role { get; set; }
+}
+
+/// <summary>
+/// DTO đặt lại mật khẩu người dùng do Quản trị viên thực hiện
+/// </summary>
+public record ResetPasswordAdminModel
+{
+    [Required(ErrorMessage = "ID người dùng không được để trống")]
+    public int UserId { get; init; }
+
+    [Required(ErrorMessage = "Mật khẩu mới không được để trống")]
+    public string NewPassword { get; init; } = string.Empty;
+}
+
 
