@@ -55,9 +55,16 @@ public record HealthCheckupRecordModel : HealthCheckupRecordBaseModel
     public string PhoneNumber { get; init; }
 }
 
+/// <summary>
+/// DTO nhận vào khi tạo mới hồ sơ khám sức khỏe
+/// </summary>
 public record CreateHealthCheckupRecordModel : HealthCheckupRecordBaseModel
 {
-    
+    [Required(ErrorMessage = "Vui lòng chọn đợt khám sức khỏe (CampaignId).")]
+    public int CampaignId { get; init; }
+
+    [Required(ErrorMessage = "Vui lòng chọn cán bộ khám sức khỏe (StaffId).")]
+    public int StaffId { get; init; }
 }
 /// <summary>
 /// DTO nhận vào khi bác sĩ cập nhật kết luận và tình trạng hồ sơ khám
@@ -67,17 +74,20 @@ public record UpdateHealthCheckupRecordModel : HealthCheckupRecordBaseModel
 
     public void UpdateEntity(VcHealthCheckupRecords entity)
     {
-        entity.SidCode = SidCode;
-        entity.ActualCheckupDate = ActualCheckupDate;
+        if (!string.IsNullOrWhiteSpace(SidCode)) entity.SidCode = SidCode.Trim();
+        if (ActualCheckupDate != default) entity.ActualCheckupDate = ActualCheckupDate;
         entity.MedicalHistoryPersonal = MedicalHistoryPersonal;
         entity.MedicalHistoryFamily = MedicalHistoryFamily;
         entity.HealthClassification = HealthClassification;
         entity.GeneralConclusion = GeneralConclusion;
         entity.Recommendations = Recommentdations;
         entity.ReportPdfUrl = ReportPdfUrl;
-        entity.ConcludedByDoctorId = ConcludedByDoctorId;
-        entity.ConcludedAt = ConcludedAt;
-        entity.Status = Status;
+        entity.ConcludedByDoctorId = ConcludedByDoctorId > 0 ? ConcludedByDoctorId : null;
+        entity.ConcludedAt = ConcludedAt == default ? DateTime.Now : ConcludedAt;
+        if (!string.IsNullOrWhiteSpace(Status))
+        {
+            entity.Status = Status.Trim();
+        }
     }
 }
 
@@ -97,3 +107,35 @@ public record HealthCheckupRecordFilterModel : BaseQueryFilterModel
     
     public string? HealthClassification {get; set;}
 }
+
+/// <summary>
+/// DTO danh mục Đợt khám sức khỏe phục vụ hiển thị combobox / dropdown
+/// </summary>
+public record CampaignSelectModel
+{
+    public int CampaignId { get; init; }
+    public string CampaignName { get; init; }
+    public string CampaignCode { get; init; }
+    public int Year { get; init; }
+    public string Status { get; init; }
+}
+
+/// <summary>
+/// DTO danh mục Phân loại sức khỏe (Theo tiêu chuẩn Bộ Y tế: Loại I đến Loại V)
+/// </summary>
+public record HealthClassificationSelectModel
+{
+    public string ClassificationCode { get; init; } = string.Empty;
+    public string ClassificationName { get; init; } = string.Empty;
+    public string? Description { get; init; }
+}
+
+/// <summary>
+/// DTO danh mục Trạng thái hồ sơ khám sức khỏe
+/// </summary>
+public record RecordStatusSelectModel
+{
+    public string StatusCode { get; init; } = string.Empty;
+    public string StatusName { get; init; } = string.Empty;
+    public string? Description { get; init; }
+}

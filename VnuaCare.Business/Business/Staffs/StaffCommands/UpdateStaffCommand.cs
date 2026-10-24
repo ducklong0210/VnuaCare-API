@@ -71,18 +71,26 @@ public class UpdateStaffCommand : IRequest<Unit>
                 throw new ArgumentException("Địa chỉ Email không đúng định dạng.");
             }
             
-            // Kiểm tra trùng Email trong bảng User
-            var isEmailExisted = await _dataContext.VcUsers.AnyAsync(x => x.Email == model.Email.Trim());
-            if (isEmailExisted)
+            // Kiểm tra trùng Email trong bảng User (loại trừ tài khoản hiện tại)
+            if (!string.IsNullOrWhiteSpace(model.Email))
             {
-                throw new ArgumentException($"Email '{model.Email}' đã được sử dụng bởi một tài khoản khác.");
+                var isEmailExisted = await _dataContext.VcUsers
+                    .AnyAsync(x => x.Email == model.Email.Trim() && x.UserId != entity.UserId, cancellationToken);
+                if (isEmailExisted)
+                {
+                    throw new ArgumentException($"Email '{model.Email}' đã được sử dụng bởi một tài khoản khác.");
+                }
             }
             
-            // Kiểm tra trùng Số điện thoại trong bảng Staff
-            var isPhoneExisted = await _dataContext.VcStaffs.AnyAsync(x => x.PhoneNumber == model.PhoneNumber);
-            if (isPhoneExisted)
+            // Kiểm tra trùng Số điện thoại trong bảng Staff (loại trừ cán bộ hiện tại)
+            if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
             {
-                throw new ArgumentException($"Số điện thoại '{model.PhoneNumber}' đã được sử dụng bởi cán bộ khác.");
+                var isPhoneExisted = await _dataContext.VcStaffs
+                    .AnyAsync(x => x.PhoneNumber == model.PhoneNumber.Trim() && x.StaffId != entity.StaffId, cancellationToken);
+                if (isPhoneExisted)
+                {
+                    throw new ArgumentException($"Số điện thoại '{model.PhoneNumber}' đã được sử dụng bởi cán bộ khác.");
+                }
             }
             #endregion
 

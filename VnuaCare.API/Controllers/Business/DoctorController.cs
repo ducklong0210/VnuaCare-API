@@ -17,9 +17,9 @@ namespace VnuaCare.API.Controllers.Business;
 /// Quản lý hồ sơ Bác sĩ và chuyên khoa y tế
 /// </summary>
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/doctors")]
 [ApiExplorerSettings(GroupName = "Quản lý bác sĩ")]
-// [Authorize]
+[Authorize]
 public class DoctorController : ApiControllerBase
 {
     private readonly IMediator _mediator;
@@ -45,11 +45,40 @@ public class DoctorController : ApiControllerBase
     }
 
     /// <summary>
+    /// Lấy danh sách Bác sĩ dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <param name="specialtyId">ID chuyên khoa (tùy chọn lọc)</param>
+    /// <returns>Danh sách bác sĩ rút gọn phục vụ chọn trên giao diện</returns>
+    [HttpGet, Route("select")]
+    [ProducesResponseType(typeof(ResponseObject<List<DoctorSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSelect([FromQuery] int? specialtyId)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxDocTorQuery(specialtyId));
+        });
+    }
+
+    /// <summary>
+    /// Lấy danh sách Chuyên khoa y tế dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <returns>Danh sách chuyên khoa rút gọn</returns>
+    [HttpGet, Route("specialties")]
+    [ProducesResponseType(typeof(ResponseObject<List<SpecialtySelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSpecialties()
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxSpecialtyQuery());
+        });
+    }
+
+    /// <summary>
     /// Lấy thông tin chi tiết Bác sĩ theo ID
     /// </summary>
     /// <param name="id">ID của Bác sĩ</param>
     /// <returns>Thông tin chi tiết Bác sĩ</returns>
-    [HttpPost, Route("{id}")]
+    [HttpGet, Route("{id}")]
     [ProducesResponseType(typeof(ResponseObject<DoctorModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
