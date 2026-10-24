@@ -130,4 +130,20 @@ public class StaffController : ApiControllerBase
             return await _mediator.Send(new GetComboxDepartmentQuery());
         });
     }
+
+    /// <summary>
+    /// Nhập danh sách Cán bộ hàng loạt (Batch / Excel Import)
+    /// </summary>
+    /// <param name="model">Dữ liệu danh sách cán bộ cần nhập</param>
+    /// <returns>Kết quả thực hiện import (số lượng thành công, thất bại và chi tiết lỗi)</returns>
+    [HttpPost, Route("import-batch")]
+    [ProducesResponseType(typeof(ResponseObject<ImportStaffResultModel>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ImportBatch([FromBody] ImportStaffBatchModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new ImportrStaffFormExcelCommand(model));
+        });
+    }
 }
+

@@ -6,8 +6,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.HealthCheckupRecords;
+using VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
 using VnuaCare.Business.Business.HealthCheckupRecords.CheckupRecordCommands;
 using VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
+
 using VnuaCare.Business.Business.Staffs;
 using VnuaCare.Business.Business.Staffs.StaffQueries;
 using VnuaCare.Business.Business.Doctors;
@@ -194,6 +196,81 @@ public class HealthCheckupRecordController : ApiControllerBase
         return await ExecuteFuntion(async () =>
         {
             return await _mediator.Send(new GetComboxDepartmentQuery());
+        });
+    }
+
+    /// <summary>
+    /// Lưu / Cập nhật kết quả khám lâm sàng Nội khoa tổng quát của Bác sĩ
+    /// </summary>
+    /// <param name="model">Dữ liệu khám lâm sàng nội khoa</param>
+    /// <returns>Kết quả lưu</returns>
+    [HttpPost, Route("internal-medicine-exam")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SaveInternalMedicineExam([FromBody] SaveInternalMedicineExamModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new SaveInternalMedicineExamCommand(model));
+        });
+    }
+
+    /// <summary>
+    /// Lấy chi tiết kết quả khám lâm sàng Nội khoa theo ID hồ sơ
+    /// </summary>
+    /// <param name="recordId">ID hồ sơ khám sức khỏe</param>
+    /// <returns>Chi tiết kết quả khám lâm sàng nội khoa</returns>
+    [HttpGet, Route("{recordId}/internal-medicine-exam")]
+    [ProducesResponseType(typeof(ResponseObject<InternalMedicineExamModel>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetInternalMedicineExam([FromRoute] int recordId)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetInternalMedicineExamByRecordIdQuery(recordId));
+        });
+    }
+
+    /// <summary>
+    /// Thêm mới Đợt khám sức khỏe định kỳ (Dành cho Quản trị viên)
+    /// </summary>
+    /// <param name="model">Thông tin đợt khám mới</param>
+    /// <returns>Kết quả thêm mới</returns>
+    [HttpPost, Route("campaigns/add")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new CreateCampaignCommand(model));
+        });
+    }
+
+    /// <summary>
+    /// Cập nhật thông tin Đợt khám sức khỏe định kỳ (Dành cho Quản trị viên)
+    /// </summary>
+    /// <param name="model">Thông tin cập nhật</param>
+    /// <returns>Kết quả cập nhật</returns>
+    [HttpPut, Route("campaigns/update")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateCampaign([FromBody] UpdateCampaignModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new UpdateCampaignCommand(model));
+        });
+    }
+
+    /// <summary>
+    /// Xóa Đợt khám sức khỏe định kỳ (chỉ cho phép khi chưa có hồ sơ liên kết)
+    /// </summary>
+    /// <param name="id">ID đợt khám cần xóa</param>
+    /// <returns>Kết quả xóa</returns>
+    [HttpDelete, Route("campaigns/{id}")]
+    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> DeleteCampaign([FromRoute] int id)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new DeleteCampaignCommand(id));
         });
     }
 }

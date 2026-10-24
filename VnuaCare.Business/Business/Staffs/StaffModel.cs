@@ -114,3 +114,21 @@ public record DepartmentSelectModel
     public string DepartmentName { get; init; }
     public string DepartmentCode { get; init; }
 }
+
+/// <summary>
+/// DTO danh sách cán bộ nhập hàng loạt
+/// </summary>
+public record ImportStaffBatchModel
+{
+    public List<CreateStaffModel> Staffs { get; init; } = new();
+}
+
+/// <summary>
+/// DTO kết quả nhập cán bộ hàng loạt
+/// </summary>
+public record ImportStaffResultModel
+{
+    public int TotalSuccess { get; set; }
+    public int TotalFailed { get; set; }
+    public List<string> Errors { get; set; } = new();
+}
