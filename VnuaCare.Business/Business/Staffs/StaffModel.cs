@@ -66,18 +66,20 @@ public record StaffFilterModel : BaseQueryFilterModel
 
 public record UpdateStaffModel : StaffBaseModel
 {
-    // public List<int>? DepartmentIds { get; set; }
-    // public int? ModifiedStaffId { get; set; }
     public void UpdateEntity(VcStaffs vcStaffs)
     {
         vcStaffs.FullName = this.FullName;
         vcStaffs.Gender = this.Gender;
         vcStaffs.DateOfBirth = this.DateOfBirth ?? DateTime.Now;
+        if (this.DepartmentId > 0)
+        {
+            vcStaffs.DepartmentId = this.DepartmentId;
+        }
         vcStaffs.AcademicTitle = this.AcademicTitle;
         vcStaffs.JobTitle = this.JobTitle;
         vcStaffs.PhoneNumber = this.PhoneNumber;
         vcStaffs.Address = this.Adrress;
-        vcStaffs.AvatarUrl = string.IsNullOrEmpty(vcStaffs.AvatarUrl) ? "" : vcStaffs.AvatarUrl;
+        vcStaffs.AvatarUrl = string.IsNullOrWhiteSpace(this.AvatarUrl) ? "" : this.AvatarUrl.Trim();
     }
 }
 public record DeleteStaffModel : StaffBaseModel
@@ -87,4 +89,28 @@ public record DeleteStaffModel : StaffBaseModel
     {
         UserId = userId;
     }
+}
+
+/// <summary>
+/// DTO danh mục Cán bộ phục vụ hiển thị combobox / dropdown
+/// </summary>
+public record StaffSelectModel
+{
+    public int StaffId { get; init; }
+    public string StaffCode { get; init; }
+    public string FullName { get; init; }
+    public string? Gender { get; init; }
+    public int DepartmentId { get; init; }
+    public string? DepartmentName { get; init; }
+    public string? PhoneNumber { get; init; }
+}
+
+/// <summary>
+/// DTO danh mục Khoa / Phòng ban phục vụ hiển thị combobox / dropdown
+/// </summary>
+public record DepartmentSelectModel
+{
+    public int DepartmentId { get; init; }
+    public string DepartmentName { get; init; }
+    public string DepartmentCode { get; init; }
 }

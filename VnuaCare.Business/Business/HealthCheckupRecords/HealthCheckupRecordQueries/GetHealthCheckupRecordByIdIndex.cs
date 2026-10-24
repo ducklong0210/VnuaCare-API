@@ -1,11 +1,22 @@
+/**
+ * Nghiệp vụ lấy thông tin chi tiết Hồ sơ khám sức khỏe theo ID:
+ * Đọc từ Redis Cache trước, nếu chưa có thì truy vấn từ CSDL kèm thông tin Cán bộ, Đợt khám và Bác sĩ.
+ * Phân quyền: Cán bộ (STAFF) chỉ có quyền xem hồ sơ của chính mình.
+ */
+
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using VnuaCare.Business.Business.Services;
 using VnuaCare.Data.Systems.DataContext;
+using VnuaCare.Shared.ContextAccessor;
+using VnuaCare.Shared.Enums;
 
 namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
 
-public class GetHealthCheckupRecordByIdIndex : IRequest<HealthCheckupRecordModel>
+/// <summary>
+/// Truy vấn lấy thông tin chi tiết hồ sơ khám sức khỏe theo ID
+/// </summary>
+public class GetHealthCheckupRecordByIdIndex : IRequest<HealthCheckupRecordModel?>
 {
     public int Id { get; set; }
 
@@ -14,89 +25,76 @@ public class GetHealthCheckupRecordByIdIndex : IRequest<HealthCheckupRecordModel
         Id = id;
     }
 
-    public class Handler : IRequestHandler<GetHealthCheckupRecordByIdIndex, HealthCheckupRecordModel>
+    public class Handler : IRequestHandler<GetHealthCheckupRecordByIdIndex, HealthCheckupRecordModel?>
     {
         private readonly VnuaCareReadDataContext _dataContext;
         private readonly ICacheService _cacheService;
+        private readonly IContextAccessor _contextAccessor;
 
-        public Handler(VnuaCareReadDataContext dataContext, ICacheService cacheService)
+        public Handler(
+            VnuaCareReadDataContext dataContext, 
+            ICacheService cacheService,
+            IContextAccessor contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
+            _contextAccessor = contextAccessor;
         }
-        
-        // lay thong tin ksk
 
-        public async Task<HealthCheckupRecordModel> Handle(GetHealthCheckupRecordByIdIndex request,
+        public async Task<HealthCheckupRecordModel?> Handle(GetHealthCheckupRecordByIdIndex request,
             CancellationToken cancellationToken)
         {
-            var id = request.Id;
-            string cacheKey = HealthCheckupRecordConstant.BuildCacheKey(id.ToString());
+            var currentUserRole = _contextAccessor.Role;
+            var currentUserId = _contextAccessor.UserId;
+
+            string cacheKey = HealthCheckupRecordConstant.BuildCacheKey(request.Id.ToString());
             
             // Đọc từ Cache nếu có, nếu chưa có thì truy vấn từ CSDL và lưu vào Cache
             var item = await _cacheService.GetOrCreate<HealthCheckupRecordModel>(cacheKey, async () =>
             {
                 var entity = await _dataContext.VcHealthCheckupRecords.AsNoTracking()
-                    .Include(x => x.Staff)
-                    .Include(x => x.Doctor)
-                    .Include(x => x.Campaign)
                     .Where(x => x.RecordId == request.Id)
                     .Select(x => new HealthCheckupRecordModel
                     {
                         RecordId = x.RecordId,
-                        //join vao bang lay thong tin ra
-                        StaffId =  x.StaffId,
-                        StaffName = x.Staff.FullName,
-                        EmployeeCode =  x.Staff.EmployeeCode,
-                        DoctorName = x.Doctor.FullName,
+                        SidCode = x.SidCode,
                         CampaignId = x.CampaignId,
-                        CampaignName = x.Campaign.CampaignName,
-                        DepartmentName = x.Staff.Department.DepartmentName,
-                        Gender =  x.Staff.Gender,
-                        DateOfBirth =  x.Staff.DateOfBirth,
-                        PhoneNumber =  x.Staff.PhoneNumber,
-                        SidCode =  x.SidCode,
+                        CampaignName = x.Campaign != null ? x.Campaign.CampaignName : null,
+                        StaffId = x.StaffId,
+                        StaffName = x.Staff != null ? x.Staff.FullName : null,
+                        EmployeeCode = x.Staff != null ? x.Staff.EmployeeCode : null,
+                        DepartmentName = x.Staff != null && x.Staff.Department != null ? x.Staff.Department.DepartmentName : null,
+                        DoctorName = x.Doctor != null ? x.Doctor.FullName : null,
+                        ConcludedByDoctorId = x.ConcludedByDoctorId ?? 0,
+                        Gender = x.Staff != null ? x.Staff.Gender : null,
+                        DateOfBirth = x.Staff != null ? x.Staff.DateOfBirth : default,
+                        PhoneNumber = x.Staff != null ? x.Staff.PhoneNumber ?? string.Empty : string.Empty,
                         ActualCheckupDate = x.ActualCheckupDate,
-                        MedicalHistoryPersonal =  x.MedicalHistoryPersonal,
-                        MedicalHistoryFamily =  x.MedicalHistoryFamily,
-                        HealthClassification =   x.HealthClassification,
-                        GeneralConclusion =    x.GeneralConclusion,
+                        MedicalHistoryPersonal = x.MedicalHistoryPersonal,
+                        MedicalHistoryFamily = x.MedicalHistoryFamily,
+                        HealthClassification = x.HealthClassification,
+                        GeneralConclusion = x.GeneralConclusion,
                         Recommentdations = x.Recommendations,
                         ConcludedAt = x.ConcludedAt,
-                        ReportPdfUrl =  x.ReportPdfUrl,
-                        Status =   x.Status,
+                        ReportPdfUrl = x.ReportPdfUrl,
+                        Status = x.Status,
                     }).FirstOrDefaultAsync(cancellationToken);
+
                 return entity;
             });
+
+            // Nếu người dùng là Cán bộ (STAFF), đảm bảo không xem trộm hồ sơ của người khác
+            if (item != null && currentUserRole == Role.STAFF.ToString())
+            {
+                var isOwnRecord = await _dataContext.VcStaffs.AsNoTracking()
+                    .AnyAsync(s => s.StaffId == item.StaffId && s.UserId == currentUserId, cancellationToken);
+                if (!isOwnRecord)
+                {
+                    throw new UnauthorizedAccessException("Bạn không có quyền xem hồ sơ khám sức khỏe của người khác.");
+                }
+            }
+
             return item;
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
     }
-    
-    
-    
-    
-    
-    
-    
-    
 }

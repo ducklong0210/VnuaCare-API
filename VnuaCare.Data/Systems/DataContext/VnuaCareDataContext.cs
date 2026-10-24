@@ -29,5 +29,6 @@ public class VnuaCareDataContext : DbContext
     public DbSet<VcSpecialties> VcSpecialties { get; set; }    // Quản lý bảng danh mục Chuyên khoa y tế
     public DbSet<VcHealthCheckupRecords> VcHealthCheckupRecords { get; set; }
     public DbSet<VcInternalMedicineExams> VcInternalMedicineExams { get; set; }
-    public DbSet<VcCheckupCampaigns>  VcCheckupCampaigns { get; set; }
+    public DbSet<VcCheckupCampaigns> VcCheckupCampaigns { get; set; }
+    public DbSet<VcCampaignRegistrations> VcCampaignRegistrations { get; set; }
 }

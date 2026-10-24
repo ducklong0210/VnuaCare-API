@@ -51,5 +51,50 @@ public record UpdatePasswordUserModel
     {
         entity.Password = this.NewPassword;
     }
-    
 }
+
+/// <summary>
+/// DTO nhận vào khi người dùng tự cập nhật thông tin hồ sơ cá nhân
+/// </summary>
+public record UpdateMyProfileModel
+{
+    [Required(ErrorMessage = "Họ và tên không được để trống")]
+    public string FullName { get; init; }
+
+    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
+    public string? Email { get; init; }
+
+    public string? PhoneNumber { get; init; }
+
+    public string? Address { get; init; }
+
+    public string? AvatarUrl { get; init; }
+
+    public string? Gender { get; init; }
+
+    public DateTime? DateOfBirth { get; init; }
+}
+
+/// <summary>
+/// DTO rút gọn cho danh mục chọn tài khoản người dùng (Combobox / Dropdown)
+/// </summary>
+public record UserSelectModel
+{
+    public int UserId { get; set; }
+    public string Username { get; set; } = string.Empty;
+    public string? Email { get; set; }
+    public string Role { get; set; } = string.Empty;
+    public bool IsActive { get; set; } = true;
+    public string? FullName { get; set; }
+}
+
+/// <summary>
+/// DTO cho danh mục chọn vai trò người dùng (Combobox / Dropdown)
+/// </summary>
+public record RoleSelectModel
+{
+    public string RoleCode { get; set; } = string.Empty;
+    public string RoleName { get; set; } = string.Empty;
+    public string? Description { get; set; }
+}
+

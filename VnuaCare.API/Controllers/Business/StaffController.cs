@@ -15,9 +15,9 @@ using VnuaCare.Shared.Utils;
 namespace VnuaCare.API.Controllers.Business;
 
 [ApiController]
-[Route("v1/staff-manager")]
+[Route("api/v1/staffs")]
 [ApiExplorerSettings(GroupName = "Quản lý nhân viên")]
-// [Authorize]
+[Authorize]
 public class StaffController : ApiControllerBase
 {
     private readonly IMediator _mediator;
@@ -99,6 +99,35 @@ public class StaffController : ApiControllerBase
         return await ExecuteFuntion(async () =>
         {
             return await _mediator.Send(new GetFilterStaffQuery(filter));
+        });
+    }
+
+    /// <summary>
+    /// Lấy danh sách Cán bộ dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <param name="departmentId">ID Khoa/Phòng ban (tùy chọn lọc)</param>
+    /// <returns>Danh sách cán bộ rút gọn phục vụ chọn trên giao diện</returns>
+    [HttpGet, Route("select")]
+    [ProducesResponseType(typeof(ResponseObject<List<StaffSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetSelect([FromQuery] int? departmentId)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxStaffQuery(departmentId));
+        });
+    }
+
+    /// <summary>
+    /// Lấy danh sách Khoa / Phòng ban dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <returns>Danh sách khoa phòng ban rút gọn</returns>
+    [HttpGet, Route("departments")]
+    [ProducesResponseType(typeof(ResponseObject<List<DepartmentSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDepartments()
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxDepartmentQuery());
         });
     }
 }

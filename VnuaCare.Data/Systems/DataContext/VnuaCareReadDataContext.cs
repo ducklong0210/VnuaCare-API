@@ -28,5 +28,5 @@ public class VnuaCareReadDataContext : DbContext
     public DbSet<VcHealthCheckupRecords> VcHealthCheckupRecords { get; set; }
     public DbSet<VcInternalMedicineExams> VcInternalMedicineExams { get; set; }
     public DbSet<VcCheckupCampaigns> VcCheckupCampaigns { get; set; }
-    
+    public DbSet<VcCampaignRegistrations> VcCampaignRegistrations { get; set; }
 }

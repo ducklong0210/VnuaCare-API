@@ -69,3 +69,25 @@ public record DeleteDoctorModel : DoctorBaseModel
         UserId = id;
     }
 }
+
+/// <summary>
+/// DTO danh mục Bác sĩ phục vụ hiển thị combobox / dropdown
+/// </summary>
+public record DoctorSelectModel
+{
+    public int DoctorId { get; init; }
+    public string DoctorCode { get; init; }
+    public string FullName { get; init; }
+    public int SpecialtyId { get; init; }
+    public string? SpecialtyName { get; init; }
+    public string? HospitalName { get; init; }
+}
+
+/// <summary>
+/// DTO danh mục Chuyên khoa y tế phục vụ hiển thị combobox / dropdown
+/// </summary>
+public record SpecialtySelectModel
+{
+    public int SpecialtyId { get; init; }
+    public string SpecialtyName { get; init; }
+}
