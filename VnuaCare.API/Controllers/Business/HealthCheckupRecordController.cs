@@ -5,8 +5,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VnuaCare.Business.Business.Campaigns;
+using VnuaCare.Business.Business.Campaigns.CampaignQueries;
 using VnuaCare.Business.Business.HealthCheckupRecords;
-using VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
 using VnuaCare.Business.Business.HealthCheckupRecords.CheckupRecordCommands;
 using VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
 
@@ -226,51 +227,6 @@ public class HealthCheckupRecordController : ApiControllerBase
         return await ExecuteFuntion(async () =>
         {
             return await _mediator.Send(new GetInternalMedicineExamByRecordIdQuery(recordId));
-        });
-    }
-
-    /// <summary>
-    /// Thêm mới Đợt khám sức khỏe định kỳ (Dành cho Quản trị viên)
-    /// </summary>
-    /// <param name="model">Thông tin đợt khám mới</param>
-    /// <returns>Kết quả thêm mới</returns>
-    [HttpPost, Route("campaigns/add")]
-    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignModel model)
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new CreateCampaignCommand(model));
-        });
-    }
-
-    /// <summary>
-    /// Cập nhật thông tin Đợt khám sức khỏe định kỳ (Dành cho Quản trị viên)
-    /// </summary>
-    /// <param name="model">Thông tin cập nhật</param>
-    /// <returns>Kết quả cập nhật</returns>
-    [HttpPut, Route("campaigns/update")]
-    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> UpdateCampaign([FromBody] UpdateCampaignModel model)
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new UpdateCampaignCommand(model));
-        });
-    }
-
-    /// <summary>
-    /// Xóa Đợt khám sức khỏe định kỳ (chỉ cho phép khi chưa có hồ sơ liên kết)
-    /// </summary>
-    /// <param name="id">ID đợt khám cần xóa</param>
-    /// <returns>Kết quả xóa</returns>
-    [HttpDelete, Route("campaigns/{id}")]
-    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> DeleteCampaign([FromRoute] int id)
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new DeleteCampaignCommand(id));
         });
     }
 }

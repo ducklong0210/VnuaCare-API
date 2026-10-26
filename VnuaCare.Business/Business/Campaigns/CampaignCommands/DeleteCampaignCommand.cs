@@ -10,7 +10,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
+namespace VnuaCare.Business.Business.Campaigns.CampaignCommands;
 
 public class DeleteCampaignCommand : IRequest<Unit>
 {
@@ -73,7 +73,8 @@ public class DeleteCampaignCommand : IRequest<Unit>
             #endregion
 
             #region 5. Xóa Cache
-            _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
+            _cacheService.Remove(CampaignConstant.BuildCacheKey(request.CampaignId.ToString()));
+            _cacheService.Remove(CampaignConstant.BuildCacheKey());
             #endregion
 
             Log.Information($"Xóa đợt khám ID {request.CampaignId} thành công.");

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using VnuaCare.Business.Business.Campaigns;
 using VnuaCare.Data.Systems.Context;
 
 namespace VnuaCare.Business.Business.HealthCheckupRecords;
@@ -109,18 +110,6 @@ public record HealthCheckupRecordFilterModel : BaseQueryFilterModel
 }
 
 /// <summary>
-/// DTO danh mục Đợt khám sức khỏe phục vụ hiển thị combobox / dropdown
-/// </summary>
-public record CampaignSelectModel
-{
-    public int CampaignId { get; init; }
-    public string CampaignName { get; init; }
-    public string CampaignCode { get; init; }
-    public int Year { get; init; }
-    public string Status { get; init; }
-}
-
-/// <summary>
 /// DTO danh mục Phân loại sức khỏe (Theo tiêu chuẩn Bộ Y tế: Loại I đến Loại V)
 /// </summary>
 public record HealthClassificationSelectModel
@@ -170,34 +159,4 @@ public record InternalMedicineExamModel : SaveInternalMedicineExamModel
     public DateTime CreatedAt { get; init; }
 }
 
-/// <summary>
-/// DTO thêm mới Đợt khám sức khỏe
-/// </summary>
-public record CreateCampaignModel
-{
-    [Required(ErrorMessage = "Tên đợt khám không được để trống")]
-    public string CampaignName { get; init; } = string.Empty;
-
-    [Required(ErrorMessage = "Mã đợt khám không được để trống")]
-    public string CampaignCode { get; init; } = string.Empty;
-
-    public int Year { get; init; } = DateTime.Now.Year;
-
-    public DateTime StartDate { get; init; } = DateTime.Today;
-
-    public DateTime EndDate { get; init; } = DateTime.Today.AddDays(7);
-
-    public string HospitalPartner { get; init; } = "Bệnh viện Đa khoa MEDLATEC";
-
-    public string Status { get; init; } = "PLANNING";
-}
-
-/// <summary>
-/// DTO cập nhật Đợt khám sức khỏe
-/// </summary>
-public record UpdateCampaignModel : CreateCampaignModel
-{
-    [Required(ErrorMessage = "ID đợt khám không được để trống")]
-    public int CampaignId { get; init; }
-}
 

@@ -22,6 +22,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Thêm Controllers và Swagger Explorer
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("LocalApiPlayground", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5500",
+                "http://127.0.0.1:5500")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Cấu hình Swagger UI kèm hỗ trợ JWT Bearer Token
 builder.Services.AddSwaggerGen(c =>
@@ -151,6 +163,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("LocalApiPlayground");
 
 // Kích hoạt Authentication & Authorization middleware
 app.UseAuthentication();

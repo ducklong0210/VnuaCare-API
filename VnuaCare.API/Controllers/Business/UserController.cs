@@ -132,21 +132,6 @@ public class UserController : ApiControllerBase
     }
 
     /// <summary>
-    /// Thêm mới tài khoản người dùng (Dành cho Quản trị viên)
-    /// </summary>
-    /// <param name="model">Thông tin tài khoản mới</param>
-    /// <returns>Kết quả thêm mới</returns>
-    [HttpPost("add")]
-    [ProducesResponseType(typeof(ResponseObject<Unit>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> Create([FromBody] CreateUserModel model)
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new CreateUserCommand(model));
-        });
-    }
-
-    /// <summary>
     /// Cập nhật thông tin tài khoản người dùng (Dành cho Quản trị viên)
     /// </summary>
     /// <param name="model">Thông tin cập nhật</param>

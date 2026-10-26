@@ -9,7 +9,7 @@ using VnuaCare.Business.Business.Services;
 using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
+namespace VnuaCare.Business.Business.Campaigns.CampaignQueries;
 
 /// <summary>
 /// Query lấy danh sách Đợt khám sức khỏe phục vụ hiển thị combobox / dropdown trên giao diện

@@ -101,27 +101,6 @@ public record RoleSelectModel
 }
 
 /// <summary>
-/// DTO tạo mới tài khoản người dùng
-/// </summary>
-public record CreateUserModel
-{
-    [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
-    public string Username { get; init; } = string.Empty;
-
-    [Required(ErrorMessage = "Mật khẩu không được để trống")]
-    public string Password { get; init; } = string.Empty;
-
-    [Required(ErrorMessage = "Email không được để trống")]
-    [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
-    public string Email { get; init; } = string.Empty;
-
-    [Required(ErrorMessage = "Vai trò không được để trống")]
-    public string Role { get; init; } = string.Empty;
-
-    public bool IsActive { get; init; } = true;
-}
-
-/// <summary>
 /// DTO cập nhật tài khoản người dùng
 /// </summary>
 public record UpdateUserModel

@@ -12,7 +12,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
+namespace VnuaCare.Business.Business.Campaigns.CampaignCommands;
 
 public class CreateCampaignCommand : IRequest<Unit>
 {
@@ -88,7 +88,7 @@ public class CreateCampaignCommand : IRequest<Unit>
             #endregion
 
             #region 4. Xóa Cache
-            _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
+            _cacheService.Remove(CampaignConstant.BuildCacheKey());
             #endregion
 
             Log.Information($"Tạo đợt khám '{campaign.CampaignName}' thành công với ID: {campaign.CampaignId}");
