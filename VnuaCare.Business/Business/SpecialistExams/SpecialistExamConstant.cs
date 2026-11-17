@@ -1,15 +1,21 @@
-/**
- * Hằng số và tiền tố Cache cho Phân hệ Khám Chuyên khoa lẻ (Specialist Exams)
- */
+using VnuaCare.Shared.Enums;
 
 namespace VnuaCare.Business.Business.SpecialistExams;
 
-public static class SpecialistExamConstant
+public class SpecialistExamConstant
 {
-    public const string CACHE_PREFIX = "specialist_exam";
+    public const string CachePrefix = "specialistexams";
+    public const string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
 
-    public static string BuildCacheKey(string recordId)
+    public static string BuildCacheKey(string id = "")
     {
-        return $"{CACHE_PREFIX}:record_{recordId}";
+        if (string.IsNullOrEmpty(id))
+        {
+            return $"{CachePrefix}-{SelectItemCacheSubfix}";
+        }
+        else
+        {
+            return $"{CachePrefix}-{id}";
+        }
     }
 }

@@ -1,16 +1,16 @@
 /**
- * Định nghĩa các Model / DTO của Phân hệ Đợt khám sức khỏe (Campaigns)
+ * Định nghĩa cấu trúc dữ liệu và DTO cho Đợt khám sức khỏe (CampaignModel, CreateCampaignModel, CampaignSelectModel)
  */
 
 using System.ComponentModel.DataAnnotations;
+using VnuaCare.Data.Systems.Context;
 
 namespace VnuaCare.Business.Business.Campaigns;
 
-/// <summary>
-/// DTO thêm mới Đợt khám sức khỏe định kỳ
-/// </summary>
-public record CreateCampaignModel
+public abstract record CampaignBaseModel
 {
+    public int CampaignId { get; init; }
+
     [Required(ErrorMessage = "Tên đợt khám không được để trống")]
     public string CampaignName { get; init; } = string.Empty;
 
@@ -29,16 +29,40 @@ public record CreateCampaignModel
 }
 
 /// <summary>
-/// DTO cập nhật thông tin Đợt khám sức khỏe
+/// Dùng để hiển thị chi tiết thông tin Đợt khám sức khỏe
 /// </summary>
-public record UpdateCampaignModel : CreateCampaignModel
+public record CampaignModel : CampaignBaseModel
 {
-    [Required(ErrorMessage = "ID đợt khám không được để trống")]
-    public int CampaignId { get; init; }
+}
+
+public record CreateCampaignModel : CampaignBaseModel
+{
+}
+
+public record UpdateCampaignModel : CampaignBaseModel
+{
+    public void UpdateEntity(VcCheckupCampaigns entity)
+    {
+        entity.CampaignName = CampaignName.Trim();
+        entity.CampaignCode = CampaignCode.Trim();
+        entity.Year = Year > 0 ? Year : DateTime.Now.Year;
+        entity.StartDate = StartDate;
+        entity.EndDate = EndDate;
+        entity.HospitalPartner = HospitalPartner.Trim();
+        entity.Status = Status.Trim();
+    }
+}
+
+public record DeleteCampaignModel : CampaignBaseModel
+{
+    public DeleteCampaignModel(int id)
+    {
+        CampaignId = id;
+    }
 }
 
 /// <summary>
-/// DTO danh mục Đợt khám sức khỏe phục vụ hiển thị combobox / dropdown chọn trên giao diện
+/// DTO danh mục Đợt khám sức khỏe phục vụ hiển thị combobox / dropdown
 /// </summary>
 public record CampaignSelectModel
 {
@@ -47,14 +71,4 @@ public record CampaignSelectModel
     public string CampaignCode { get; init; } = string.Empty;
     public int Year { get; init; }
     public string Status { get; init; } = string.Empty;
-}
-
-/// <summary>
-/// DTO chi tiết Đợt khám sức khỏe kèm thống kê số lượng hồ sơ
-/// </summary>
-public record CampaignDetailModel : CreateCampaignModel
-{
-    public int CampaignId { get; init; }
-    public int TotalRecords { get; init; }
-    public int CompletedRecords { get; init; }
 }

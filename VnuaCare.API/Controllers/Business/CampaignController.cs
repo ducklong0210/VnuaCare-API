@@ -29,12 +29,12 @@ public class CampaignController : ApiControllerBase
     }
 
     /// <summary>
-    /// Lấy chi tiết Đợt khám sức khỏe theo ID (kèm thống kê số hồ sơ)
+    /// Lấy chi tiết Đợt khám sức khỏe theo ID
     /// </summary>
     /// <param name="id">ID đợt khám</param>
     /// <returns>Thông tin chi tiết đợt khám</returns>
     [HttpGet, Route("{id}")]
-    [ProducesResponseType(typeof(ResponseObject<CampaignDetailModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseObject<CampaignModel>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
         return await ExecuteFuntion(async () =>

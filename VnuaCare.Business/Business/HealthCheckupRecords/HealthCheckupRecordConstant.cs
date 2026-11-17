@@ -4,8 +4,8 @@ namespace VnuaCare.Business.Business.HealthCheckupRecords;
 
 public class HealthCheckupRecordConstant
 {
-    public static string CachePrefix = "healthcheckuprecord";
-    public static string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
+    public const string CachePrefix = "healthcheckuprecord";
+    public const string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
 
     public static string BuildCacheKey(string id = "")
     {

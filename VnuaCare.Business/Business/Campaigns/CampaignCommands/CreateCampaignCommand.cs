@@ -40,7 +40,7 @@ public class CreateCampaignCommand : IRequest<Unit>
         public async Task<Unit> Handle(CreateCampaignCommand request, CancellationToken cancellationToken)
         {
             var model = request.Model;
-            Log.Information("Bắt đầu thêm đợt khám mới: " + JsonSerializer.Serialize(model));
+            Log.Information("Bắt đầu thêm đợt khám mới: " + model.CampaignName);
 
             #region Phân quyền
             var currentUserRole = _contextAccessor.Role;
@@ -87,7 +87,7 @@ public class CreateCampaignCommand : IRequest<Unit>
             #endregion
 
             #region Xóa Cache
-            _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
+            _cacheService.Remove(CampaignConstant.BuildCacheKey());
             #endregion
 
             Log.Information($"Tạo đợt khám '{campaign.CampaignName}' thành công với ID: {campaign.CampaignId}");

@@ -1,15 +1,21 @@
-/**
- * Hằng số và tiền tố Cache cho Phân hệ Khám Thể lực & Chỉ số Sinh tồn (Vital Signs)
- */
+using VnuaCare.Shared.Enums;
 
 namespace VnuaCare.Business.Business.VitalSigns;
 
-public static class VitalSignsConstant
+public class VitalSignsConstant
 {
-    public const string CACHE_PREFIX = "vital_signs";
+    public const string CachePrefix = "vitalsigns";
+    public const string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
 
-    public static string BuildCacheKey(string recordId)
+    public static string BuildCacheKey(string id = "")
     {
-        return $"{CACHE_PREFIX}:record_{recordId}";
+        if (string.IsNullOrEmpty(id))
+        {
+            return $"{CachePrefix}-{SelectItemCacheSubfix}";
+        }
+        else
+        {
+            return $"{CachePrefix}-{id}";
+        }
     }
 }

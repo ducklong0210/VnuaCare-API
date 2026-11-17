@@ -1,6 +1,5 @@
 /**
- * Định nghĩa DTO của Phân hệ Khám Thể lực & Chỉ số Sinh tồn ban đầu (Vital Signs)
- * Chuẩn CRUD: Create, Update, Read Model tách bạch
+ * Định nghĩa DTO của Phân hệ Khám Thể lực & Chỉ số Sinh tồn (Vital Signs)
  */
 
 using System.ComponentModel.DataAnnotations;
@@ -15,7 +14,7 @@ public abstract record VitalSignsBaseModel
 {
     public decimal? HeightCm { get; init; }       // Chiều cao cơ thể (cm)
     public decimal? WeightKg { get; init; }       // Cân nặng cơ thể (kg)
-    public decimal? Bmi { get; init; }            // Chỉ số khối cơ thể BMI (tự động tính nếu bỏ trống)
+    public decimal? Bmi { get; init; }            // Chỉ số khối cơ thể BMI
     public decimal? WaistCm { get; init; }        // Vòng bụng / vòng eo (cm)
     public int? SystolicBp { get; init; }         // Huyết áp tâm thu (mmHg)
     public int? DiastolicBp { get; init; }        // Huyết áp tâm trương (mmHg)
@@ -61,14 +60,12 @@ public record UpdateVitalSignsModel : VitalSignsBaseModel
 }
 
 /// <summary>
-/// DTO trả về chi tiết chỉ số sinh tồn kèm thông tin người đo và đánh giá thể lực tự động theo chuẩn WHO
+/// DTO trả về chi tiết chỉ số sinh tồn kèm thông tin người đo
 /// </summary>
 public record VitalSignsModel : VitalSignsBaseModel
 {
     public int VitalSignId { get; init; }
     public int RecordId { get; init; }
     public string? MeasuredByName { get; init; }
-    public string? BmiClassification { get; init; }
-    public string? BloodPressureClassification { get; init; }
     public DateTime CreatedAt { get; init; }
 }

@@ -1,6 +1,5 @@
 /**
  * Định nghĩa DTO của Phân hệ Khám Chuyên khoa lẻ (Specialist Exams: Mắt, Tai Mũi Họng, Răng Hàm Mặt, Da liễu, Ngoại, Sản)
- * Chuẩn CRUD: Create, Update, Read Model tách bạch
  */
 
 using System.ComponentModel.DataAnnotations;
@@ -94,7 +93,6 @@ public record SpecialistExamModel : SpecialistExamBaseModel
     public int SpecialistExamId { get; init; }
     public int RecordId { get; init; }
     public string SpecialtyType { get; init; } = string.Empty;
-    public string? SpecialtyDisplayName { get; init; }
     public string? ExaminingDoctorName { get; init; }
     public DateTime CreatedAt { get; init; }
 }

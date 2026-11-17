@@ -1,15 +1,21 @@
-/**
- * Hằng số và hàm sinh tiền tố Cache cho Phân hệ Đợt khám sức khỏe (Campaigns)
- */
+using VnuaCare.Shared.Enums;
 
 namespace VnuaCare.Business.Business.Campaigns;
 
-public static class CampaignConstant
+public class CampaignConstant
 {
-    public const string CACHE_PREFIX = "campaigns";
+    public const string CachePrefix = "campaigns";
+    public const string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
 
-    public static string BuildCacheKey(string suffix)
+    public static string BuildCacheKey(string id = "")
     {
-        return $"{CACHE_PREFIX}:{suffix}";
+        if (string.IsNullOrEmpty(id))
+        {
+            return $"{CachePrefix}-{SelectItemCacheSubfix}";
+        }
+        else
+        {
+            return $"{CachePrefix}-{id}";
+        }
     }
 }

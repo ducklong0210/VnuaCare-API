@@ -98,7 +98,8 @@ public class UpdateCampaignCommand : IRequest<Unit>
             #endregion
 
             #region Xóa Cache
-            _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
+            _cacheService.Remove(CampaignConstant.BuildCacheKey(entity.CampaignId.ToString()));
+            _cacheService.Remove(CampaignConstant.BuildCacheKey());
             #endregion
 
             Log.Information($"Cập nhật đợt khám '{entity.CampaignName}' thành công.");

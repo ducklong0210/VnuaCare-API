@@ -1,15 +1,21 @@
-/**
- * Hằng số và tiền tố Cache cho Phân hệ Khám Nội khoa tổng quát (Internal Medicine)
- */
+using VnuaCare.Shared.Enums;
 
 namespace VnuaCare.Business.Business.InternalMedicine;
 
-public static class InternalMedicineConstant
+public class InternalMedicineConstant
 {
-    public const string CACHE_PREFIX = "internal_medicine";
+    public const string CachePrefix = "internalmedicine";
+    public const string SelectItemCacheSubfix = VnuaCareCacheConstant.LIST_SELECT;
 
-    public static string BuildCacheKey(string recordId)
+    public static string BuildCacheKey(string id = "")
     {
-        return $"{CACHE_PREFIX}:record_{recordId}";
+        if (string.IsNullOrEmpty(id))
+        {
+            return $"{CachePrefix}-{SelectItemCacheSubfix}";
+        }
+        else
+        {
+            return $"{CachePrefix}-{id}";
+        }
     }
 }

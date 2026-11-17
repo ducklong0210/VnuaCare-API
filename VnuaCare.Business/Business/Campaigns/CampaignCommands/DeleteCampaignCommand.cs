@@ -71,7 +71,8 @@ public class DeleteCampaignCommand : IRequest<Unit>
             #endregion
 
             #region Xóa Cache
-            _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
+            _cacheService.Remove(CampaignConstant.BuildCacheKey(request.CampaignId.ToString()));
+            _cacheService.Remove(CampaignConstant.BuildCacheKey());
             #endregion
 
             Log.Information($"Xóa đợt khám ID {request.CampaignId} thành công.");
