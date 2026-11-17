@@ -1,13 +1,9 @@
 /**
- * Nghiệp vụ lọc và phân trang danh sách Hồ sơ khám sức khỏe:
- * Hỗ trợ tìm kiếm theo từ khóa (Mã SID, Tên/Mã cán bộ, Bác sĩ), lọc theo Đợt khám, Khoa/Phòng ban,
- * Cán bộ, Bác sĩ kết luận, Xếp loại sức khỏe và Trạng thái hồ sơ.
- * Phân quyền: ADMIN/DOCTOR xem danh sách theo bộ lọc; STAFF chỉ xem được hồ sơ của chính mình.
+ * Nghiệp vụ lọc, tìm kiếm và phân trang danh sách Hồ sơ khám sức khỏe
  */
 
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using VnuaCare.Business.Business.Services;
 using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
@@ -15,9 +11,6 @@ using VnuaCare.Shared.Utils;
 
 namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
 
-/// <summary>
-/// Truy vấn lọc và phân trang hồ sơ khám sức khỏe
-/// </summary>
 public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthCheckupRecordModel>>
 {
     public HealthCheckupRecordFilterModel Filter { get; set; }
@@ -29,14 +22,12 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
 
     public class Handler : IRequestHandler<GetFilterHealthCheckupRecordQuery, PaginationList<HealthCheckupRecordModel>>
     {
-        private readonly VnuaCareReadDataContext _dataContext;    // DbContext Đọc để tối ưu hiệu năng truy vấn
-        private readonly ICacheService _cacheService;            // Dịch vụ Cache
-        private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất thông tin người dùng
+        private readonly VnuaCareReadDataContext _dataContext;
+        private readonly IContextAccessor _contextAccessor;
 
-        public Handler(VnuaCareReadDataContext dataContext, ICacheService cacheService, IContextAccessor contextAccessor)
+        public Handler(VnuaCareReadDataContext dataContext, IContextAccessor contextAccessor)
         {
             _dataContext = dataContext;
-            _cacheService = cacheService;
             _contextAccessor = contextAccessor;
         }
 
@@ -48,19 +39,15 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
             var currentUserRole = _contextAccessor.Role;
             var currentUserId = _contextAccessor.UserId;
 
-            #region Phân quyền
-            // Kiểm tra vai trò hợp lệ: SUPER_ADMIN, HEALTH_ADMIN, DOCTOR hoặc STAFF
-            if (currentUserRole != Role.HEALTH_ADMIN.ToString() &&
-                currentUserRole != Role.SUPER_ADMIN.ToString() &&
+            var query = _dataContext.VcHealthCheckupRecords.AsNoTracking();
+
+            if (currentUserRole != Role.SUPER_ADMIN.ToString() &&
+                currentUserRole != Role.HEALTH_ADMIN.ToString() &&
                 currentUserRole != Role.DOCTOR.ToString() &&
                 currentUserRole != Role.STAFF.ToString())
             {
                 throw new UnauthorizedAccessException("Bạn không có quyền truy cập danh sách hồ sơ khám sức khỏe.");
             }
-            #endregion
-
-            #region Điều kiện lọc
-            var query = _dataContext.VcHealthCheckupRecords.AsNoTracking();
 
             // Nếu người dùng là Cán bộ (STAFF), chỉ cho phép xem các hồ sơ của chính mình
             if (currentUserRole == Role.STAFF.ToString())
@@ -110,56 +97,37 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
                 query = query.Where(x => x.ConcludedByDoctorId == filter.DoctorId.Value);
             }
 
-            // Lọc theo Trạng thái hồ sơ (PENDING, COMPLETED, ...)
-            if (!string.IsNullOrWhiteSpace(filter.Status) && !string.Equals(filter.Status.Trim(), "string", StringComparison.OrdinalIgnoreCase))
+            // Lọc theo Trạng thái hồ sơ
+            if (!string.IsNullOrWhiteSpace(filter.Status) && filter.Status != "string")
             {
                 query = query.Where(x => x.Status == filter.Status.Trim());
             }
 
-            // Lọc theo Phân loại sức khỏe (LOAI_I, LOAI_II, ...)
-            if (!string.IsNullOrWhiteSpace(filter.HealthClassification) && !string.Equals(filter.HealthClassification.Trim(), "string", StringComparison.OrdinalIgnoreCase))
+            // Lọc theo Phân loại sức khỏe
+            if (!string.IsNullOrWhiteSpace(filter.HealthClassification) && filter.HealthClassification != "string")
             {
                 query = query.Where(x => x.HealthClassification == filter.HealthClassification.Trim());
             }
 
-            // Tìm kiếm tự do theo từ khóa (TextSearch): Mã SID, Mã/Tên cán bộ, Bác sĩ kết luận, Kết luận, Lời dặn
-            if (!string.IsNullOrWhiteSpace(filter.TextSearch) && !string.Equals(filter.TextSearch.Trim(), "string", StringComparison.OrdinalIgnoreCase))
+            // Tìm kiếm theo từ khóa
+            if (!string.IsNullOrWhiteSpace(filter.TextSearch) && filter.TextSearch != "string")
             {
                 string ts = filter.TextSearch.Trim().ToLower();
                 query = query.Where(x =>
                     (x.SidCode != null && x.SidCode.ToLower().Contains(ts)) ||
-                    (x.Staff != null && x.Staff.FullName != null && x.Staff.FullName.ToLower().Contains(ts)) ||
-                    (x.Staff != null && x.Staff.EmployeeCode != null && x.Staff.EmployeeCode.ToLower().Contains(ts)) ||
-                    (x.Doctor != null && x.Doctor.FullName != null && x.Doctor.FullName.ToLower().Contains(ts)) ||
-                    (x.HealthClassification != null && x.HealthClassification.ToLower().Contains(ts)) ||
-                    (x.GeneralConclusion != null && x.GeneralConclusion.ToLower().Contains(ts)) ||
-                    (x.Recommendations != null && x.Recommendations.ToLower().Contains(ts)) ||
-                    (x.MedicalHistoryPersonal != null && x.MedicalHistoryPersonal.ToLower().Contains(ts)) ||
-                    (x.MedicalHistoryFamily != null && x.MedicalHistoryFamily.ToLower().Contains(ts)));
+                    (x.Staff != null && x.Staff.FullName.ToLower().Contains(ts)) ||
+                    (x.Staff != null && x.Staff.EmployeeCode.ToLower().Contains(ts)));
             }
-            #endregion
 
-            #region Phân trang dữ liệu
-            if (filter.PageNumber <= 0) filter.PageNumber = 1;
+            // Phân trang
             if (filter.PageSize <= 0) filter.PageSize = 10;
+            if (filter.PageNumber <= 0) filter.PageNumber = 1;
             
             int totalCount = await query.CountAsync(cancellationToken);
             int excludedRows = (filter.PageNumber - 1) * filter.PageSize;
 
-            bool isAsc = string.Equals(filter.Ascending, "asc", StringComparison.OrdinalIgnoreCase);
-            query = (filter.PropertyName?.ToLower(), isAsc) switch
-            {
-                ("actualcheckupdate", true) => query.OrderBy(x => x.ActualCheckupDate),
-                ("actualcheckupdate", false) => query.OrderByDescending(x => x.ActualCheckupDate),
-                ("concludedat", true) => query.OrderBy(x => x.ConcludedAt),
-                ("concludedat", false) => query.OrderByDescending(x => x.ConcludedAt),
-                ("sidcode", true) => query.OrderBy(x => x.SidCode),
-                ("sidcode", false) => query.OrderByDescending(x => x.SidCode),
-                (_, true) => query.OrderBy(x => x.RecordId),
-                _ => query.OrderByDescending(x => x.RecordId)
-            };
-
             var listData = await query
+                .OrderBy(x => x.RecordId)
                 .Skip(excludedRows)
                 .Take(filter.PageSize)
                 .Select(x => new HealthCheckupRecordModel
@@ -182,7 +150,7 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
                     HealthClassification = x.HealthClassification,
                     GeneralConclusion = x.GeneralConclusion,
                     Gender = x.Staff != null ? x.Staff.Gender : null,
-                    Recommentdations = x.Recommendations,
+                    Recommendations = x.Recommendations,
                     ConcludedAt = x.ConcludedAt,
                     Status = x.Status,
                     ReportPdfUrl = x.ReportPdfUrl,
@@ -190,13 +158,12 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
 
             return new PaginationList<HealthCheckupRecordModel>
             {
+                Data = listData,
                 DataCount = listData.Count,
                 TotalCount = totalCount,
-                PageNumber = filter.PageNumber,
                 PageSize = filter.PageSize,
-                Data = listData
+                PageNumber = filter.PageNumber
             };
-            #endregion
         }
     }
 }

@@ -65,9 +65,6 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
                 query = query.Where(x => x.User.IsActive == filter.IsActive.Value);
             }
 
-            // sắp xếp
-            // query = query.
-
             // phân trang
             if (filter.PageSize <= 0) filter.PageSize = 10;
             if (filter.PageNumber <= 0) filter.PageNumber = 1;
