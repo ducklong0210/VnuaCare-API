@@ -27,6 +27,8 @@ public class VnuaCareReadDataContext : DbContext
     public DbSet<VcSpecialties> VcSpecialties { get; set; }    // Đọc dữ liệu bảng danh mục Chuyên khoa y tế
     public DbSet<VcHealthCheckupRecords> VcHealthCheckupRecords { get; set; }
     public DbSet<VcInternalMedicineExams> VcInternalMedicineExams { get; set; }
+    public DbSet<VcVitalSigns> VcVitalSigns { get; set; }                      // Đọc bảng chỉ số sinh tồn và thể lực (vc_vital_signs)
+    public DbSet<VcSpecialistExams> VcSpecialistExams { get; set; }            // Đọc bảng khám các chuyên khoa lâm sàng lẻ (vc_specialist_exams)
     public DbSet<VcCheckupCampaigns> VcCheckupCampaigns { get; set; }
     public DbSet<VcCampaignRegistrations> VcCampaignRegistrations { get; set; }
 }

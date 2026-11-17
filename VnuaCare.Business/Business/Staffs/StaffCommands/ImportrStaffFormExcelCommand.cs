@@ -83,13 +83,7 @@ public class ImportrStaffFormExcelCommand : IRequest<ImportStaffResultModel>
                         result.Errors.Add($"Dòng {index}: Mã cán bộ không được để trống.");
                         continue;
                     }
-
-                    if (string.IsNullOrWhiteSpace(staff.Username))
-                    {
-                        result.TotalFailed++;
-                        result.Errors.Add($"Dòng {index} ({staff.FullName}): Tên đăng nhập không được để trống.");
-                        continue;
-                    }
+                    
 
                     if (string.IsNullOrWhiteSpace(staff.Email) || !ValidationUtils.IsEmail(staff.Email.Trim()))
                     {
@@ -98,8 +92,7 @@ public class ImportrStaffFormExcelCommand : IRequest<ImportStaffResultModel>
                         continue;
                     }
 
-                    string password = string.IsNullOrWhiteSpace(staff.Password) ? "Vnua@123456" : staff.Password;
-
+                 
                     // Kiểm tra phòng ban
                     var deptExists = await _dataContext.VcDepartments
                         .AnyAsync(d => d.DepartmentId == staff.DepartmentId, cancellationToken);
@@ -111,15 +104,6 @@ public class ImportrStaffFormExcelCommand : IRequest<ImportStaffResultModel>
                     }
 
                     // Kiểm tra trùng lặp
-                    var userExists = await _dataContext.VcUsers
-                        .AnyAsync(u => u.Username == staff.Username.Trim() || u.Email == staff.Email.Trim(), cancellationToken);
-                    if (userExists)
-                    {
-                        result.TotalFailed++;
-                        result.Errors.Add($"Dòng {index} ({staff.FullName}): Tên đăng nhập hoặc Email đã tồn tại.");
-                        continue;
-                    }
-
                     var codeExists = await _dataContext.VcStaffs
                         .AnyAsync(s => s.EmployeeCode == staff.StaffCode.Trim(), cancellationToken);
                     if (codeExists)
@@ -133,9 +117,7 @@ public class ImportrStaffFormExcelCommand : IRequest<ImportStaffResultModel>
                     #region Tạo User và Staff
                     var user = new VcUsers
                     {
-                        Username = staff.Username.Trim(),
                         Email = staff.Email.Trim(),
-                        Password = _passwordHasher.HashPassword(password),
                         Role = Role.STAFF.ToString(),
                         IsActive = true,
                         CreatedAt = DateTime.Now,

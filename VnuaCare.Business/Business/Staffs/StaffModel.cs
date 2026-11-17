@@ -50,12 +50,9 @@ public record StaffModel : StaffBaseModel
 /// </summary>
 public record CreateStaffModel :  StaffBaseModel
 {
-    
-    [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
-    public string Username { get; init; }
-    
-    [Required(ErrorMessage = "Mật khẩu không được để trống")]
-    public string Password { get; init; } 
+    [Required(ErrorMessage = "Vui lòng chọn tài khoản người dùng")]
+    [Range(1, int.MaxValue, ErrorMessage = "Tài khoản người dùng không hợp lệ")]
+    public int UserId { get; init; }
     
 }
 
@@ -131,4 +128,4 @@ public record ImportStaffResultModel
     public int TotalSuccess { get; set; }
     public int TotalFailed { get; set; }
     public List<string> Errors { get; set; } = new();
-}
+}

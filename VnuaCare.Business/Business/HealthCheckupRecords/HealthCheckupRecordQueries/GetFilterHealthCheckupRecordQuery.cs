@@ -33,10 +33,7 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
         private readonly ICacheService _cacheService;            // Dịch vụ Cache
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất thông tin người dùng
 
-        public Handler(
-            VnuaCareReadDataContext dataContext, 
-            ICacheService cacheService, 
-            IContextAccessor contextAccessor)
+        public Handler(VnuaCareReadDataContext dataContext, ICacheService cacheService, IContextAccessor contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
@@ -51,7 +48,7 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
             var currentUserRole = _contextAccessor.Role;
             var currentUserId = _contextAccessor.UserId;
 
-            #region 1. Phân quyền người thực hiện (Authorization)
+            #region Phân quyền
             // Kiểm tra vai trò hợp lệ: SUPER_ADMIN, HEALTH_ADMIN, DOCTOR hoặc STAFF
             if (currentUserRole != Role.HEALTH_ADMIN.ToString() &&
                 currentUserRole != Role.SUPER_ADMIN.ToString() &&
@@ -62,7 +59,7 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
             }
             #endregion
 
-            #region 2. Xây dựng điều kiện lọc (Filter Conditions)
+            #region Điều kiện lọc
             var query = _dataContext.VcHealthCheckupRecords.AsNoTracking();
 
             // Nếu người dùng là Cán bộ (STAFF), chỉ cho phép xem các hồ sơ của chính mình
@@ -142,7 +139,7 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
             }
             #endregion
 
-            #region 3. Sắp xếp động và phân trang dữ liệu
+            #region Phân trang dữ liệu
             if (filter.PageNumber <= 0) filter.PageNumber = 1;
             if (filter.PageSize <= 0) filter.PageSize = 10;
             

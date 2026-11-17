@@ -11,7 +11,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
+namespace VnuaCare.Business.Business.Campaigns.CampaignCommands;
 
 public class UpdateCampaignCommand : IRequest<Unit>
 {
@@ -24,26 +24,24 @@ public class UpdateCampaignCommand : IRequest<Unit>
 
     public class Handler : IRequestHandler<UpdateCampaignCommand, Unit>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly ICacheService _cacheService;
-        private readonly IContextAccessor _contextAccessor;
+        private readonly VnuaCareDataContext _dataContext;        // Kết nối CSDL để cập nhật thông tin đợt khám
+        private readonly ICacheService _cacheService;            // Dịch vụ xóa Cache sau khi cập nhật
+        private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất Role của người thực hiện
 
-        public Handler(
-            VnuaCareDataContext dataContext,
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
             _contextAccessor = contextAccessor();
         }
 
+        // Xử lý kiểm tra dữ liệu, quyền hạn và cập nhật đợt khám trong CSDL
         public async Task<Unit> Handle(UpdateCampaignCommand request, CancellationToken cancellationToken)
         {
             var model = request.Model;
             Log.Information("Bắt đầu cập nhật đợt khám: " + JsonSerializer.Serialize(model));
 
-            #region 1. Phân quyền
+            #region Phân quyền
             var currentUserRole = _contextAccessor.Role;
             if (currentUserRole != Role.SUPER_ADMIN.ToString() && currentUserRole != Role.HEALTH_ADMIN.ToString())
             {
@@ -51,7 +49,7 @@ public class UpdateCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 2. Kiểm tra tồn tại
+            #region Kiểm tra tồn tại
             var entity = await _dataContext.VcCheckupCampaigns
                 .FirstOrDefaultAsync(x => x.CampaignId == model.CampaignId, cancellationToken);
             if (entity == null)
@@ -60,7 +58,7 @@ public class UpdateCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 3. Kiểm tra dữ liệu hợp lệ
+            #region Kiểm tra tính hợp lệ dữ liệu
             if (string.IsNullOrWhiteSpace(model.CampaignName))
             {
                 throw new ArgumentException("Tên đợt khám không được để trống.");
@@ -71,6 +69,7 @@ public class UpdateCampaignCommand : IRequest<Unit>
                 throw new ArgumentException("Mã đợt khám không được để trống.");
             }
 
+            // Kiểm tra trùng mã với đợt khám khác
             var isCodeExisted = await _dataContext.VcCheckupCampaigns
                 .AnyAsync(x => x.CampaignCode == model.CampaignCode.Trim() && x.CampaignId != model.CampaignId, cancellationToken);
             if (isCodeExisted)
@@ -79,7 +78,7 @@ public class UpdateCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 4. Cập nhật dữ liệu
+            #region Cập nhật CSDL
             entity.CampaignName = model.CampaignName.Trim();
             entity.CampaignCode = model.CampaignCode.Trim().ToUpper();
             entity.Year = model.Year > 0 ? model.Year : entity.Year;
@@ -98,7 +97,7 @@ public class UpdateCampaignCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 5. Xóa Cache
+            #region Xóa Cache
             _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
             #endregion
 

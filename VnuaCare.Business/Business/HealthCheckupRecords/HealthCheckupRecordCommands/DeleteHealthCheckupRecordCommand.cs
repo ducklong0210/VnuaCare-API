@@ -31,10 +31,7 @@ public class DeleteHealthCheckupRecordCommand : IRequest<Unit>
         private readonly ICacheService _cacheService;            // Dịch vụ quản lý bộ nhớ đệm
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất quyền người dùng
 
-        public Handler(
-            VnuaCareDataContext dataContext, 
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
@@ -49,7 +46,7 @@ public class DeleteHealthCheckupRecordCommand : IRequest<Unit>
             var recordId = request.RecordId;
             Log.Information($"Bắt đầu xóa hồ sơ khám sức khỏe ID: {recordId}");
 
-            #region 1. Phân quyền người thực hiện (Authorization)
+            #region Phân quyền
             // Chỉ Quản trị viên y tế hoặc Quản trị hệ thống mới có quyền xóa hồ sơ khám
             var currentUserRole = _contextAccessor.Role;
 
@@ -60,7 +57,7 @@ public class DeleteHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 2. Kiểm tra sự tồn tại của hồ sơ trong CSDL
+            #region Kiểm tra tồn tại
             var record = await _dataContext.VcHealthCheckupRecords
                 .FirstOrDefaultAsync(x => x.RecordId == recordId, cancellationToken);
 
@@ -70,7 +67,7 @@ public class DeleteHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 3. Xử lý các liên kết khóa ngoại (Cascade Delete dữ liệu khám lâm sàng)
+            #region Xử lý dữ liệu liên quan
             // Xóa các kết quả khám lâm sàng nội khoa liên kết với hồ sơ nếu có
             var internalMedicineExams = await _dataContext.VcInternalMedicineExams
                 .Where(x => x.RecordId == recordId)
@@ -86,7 +83,7 @@ public class DeleteHealthCheckupRecordCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 4. Xóa bộ nhớ đệm (Cache Invalidation)
+            #region Xóa Cache
             _cacheService.Remove(HealthCheckupRecordConstant.BuildCacheKey(recordId.ToString()));
             _cacheService.Remove(HealthCheckupRecordConstant.BuildCacheKey());
             #endregion

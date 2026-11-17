@@ -29,4 +29,8 @@
         <ProjectReference Include="..\VnuaCare.Data\VnuaCare.Data.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Business\Campaigns\" />
+    </ItemGroup>
+
 </Project>

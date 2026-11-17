@@ -1,12 +1,13 @@
 /**
  * Nghiệp vụ Lấy kết quả khám lâm sàng Nội khoa theo ID hồ sơ (GetInternalMedicineExamByRecordIdQuery)
+ * Sử dụng DbContext chỉ đọc VnuaCareReadDataContext kết hợp AsNoTracking() tối ưu hiệu năng
  */
 
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using VnuaCare.Data.Systems.DataContext;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
+namespace VnuaCare.Business.Business.InternalMedicine.InternalMedicineQueries;
 
 public class GetInternalMedicineExamByRecordIdQuery : IRequest<InternalMedicineExamModel?>
 {

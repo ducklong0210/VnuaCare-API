@@ -30,10 +30,7 @@ public class DeleteDoctorCommand : IRequest<Unit>
         private readonly ICacheService _cacheService;            // Dịch vụ xóa Cache sau khi xóa
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất Role của người thực hiện
 
-        public Handler(
-            VnuaCareDataContext dataContext, 
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;

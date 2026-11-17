@@ -32,10 +32,7 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
         private readonly ICacheService _cacheService;            // Dịch vụ quản lý và làm mới bộ nhớ đệm (Cache)
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất thông tin người dùng đang thực hiện (Role, UserId)
 
-        public Handler(
-            VnuaCareDataContext dataContext, 
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
@@ -50,7 +47,7 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
             var model = request.Model;
             Log.Information($"Bắt đầu cập nhật hồ sơ khám sức khỏe ID: {model.RecordId} - {JsonSerializer.Serialize(model)}");
 
-            #region 1. Phân quyền người thực hiện (Authorization)
+            #region Phân quyền
             // Cho phép SUPER_ADMIN, HEALTH_ADMIN và DOCTOR cập nhật hồ sơ khám sức khỏe
             var currentUserRole = _contextAccessor.Role;
 
@@ -62,7 +59,7 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 2. Kiểm tra tính hợp lệ dữ liệu đầu vào (Validation)
+            #region Kiểm tra tính hợp lệ dữ liệu
             if (model.RecordId <= 0)
             {
                 throw new ArgumentException("ID hồ sơ khám sức khỏe không hợp lệ.");
@@ -74,7 +71,7 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 3. Kiểm tra sự tồn tại của hồ sơ trong CSDL
+            #region Kiểm tra tồn tại
             var entity = await _dataContext.VcHealthCheckupRecords
                 .FirstOrDefaultAsync(x => x.RecordId == model.RecordId, cancellationToken);
 
@@ -84,7 +81,7 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 4. Kiểm tra trùng lặp mã vạch SID (nếu SID bị thay đổi)
+            #region Kiểm tra trùng lặp SID
             var sidTrimmed = model.SidCode.Trim();
             if (!string.Equals(entity.SidCode, sidTrimmed, StringComparison.OrdinalIgnoreCase))
             {
@@ -98,7 +95,7 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 5. Kiểm tra bác sĩ ký kết luận (nếu có cập nhật ConcludedByDoctorId)
+            #region Kiểm tra bác sĩ kết luận
             if (model.ConcludedByDoctorId > 0)
             {
                 var doctorExists = await _dataContext.VcDoctors
@@ -110,14 +107,14 @@ public class UpdateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 6. Cập nhật dữ liệu vào thực thể và lưu CSDL
+            #region Cập nhật CSDL
             model.UpdateEntity(entity);
 
             _dataContext.VcHealthCheckupRecords.Update(entity);
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 7. Xóa bộ nhớ đệm (Cache Invalidation)
+            #region Xóa Cache
             _cacheService.Remove(HealthCheckupRecordConstant.BuildCacheKey(entity.RecordId.ToString()));
             _cacheService.Remove(HealthCheckupRecordConstant.BuildCacheKey());
             #endregion

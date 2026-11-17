@@ -32,18 +32,12 @@ public class CreateDoctorCommand : IRequest<Unit>
         private readonly VnuaCareDataContext _dataContext;                // Kết nối CSDL để lưu trữ User và Doctor
         private readonly ICacheService _cacheService;                    // Dịch vụ xóa Cache sau khi tạo mới
         private readonly IContextAccessor _contextAccessor;              // Dịch vụ trích xuất Role của người thực hiện
-        private readonly IBcryptPasswordHasher _bcryptPasswordHasher;    // Dịch vụ băm mật khẩu bằng BCrypt
 
-        public Handler(
-            VnuaCareDataContext dataContext, 
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor, 
-            IBcryptPasswordHasher bcryptPasswordHasher)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
             _contextAccessor = contextAccessor();
-            _bcryptPasswordHasher = bcryptPasswordHasher;
         }
 
         // Xử lý kiểm tra dữ liệu, tạo tài khoản User và lưu hồ sơ Bác sĩ vào CSDL
@@ -61,17 +55,6 @@ public class CreateDoctorCommand : IRequest<Unit>
             }
 
             #region Kiểm tra tính hợp lệ (Validation)
-            // Kiểm tra định dạng tên đăng nhập
-            if (string.IsNullOrWhiteSpace(model.Username) || !ValidationUtils.IsUsername(model.Username))
-            {
-                throw new ArgumentException("Tên đăng nhập không hợp lệ (không chứa khoảng trắng và tối thiểu 3 ký tự).");
-            }
-
-            // Kiểm tra độ mạnh mật khẩu
-            if (string.IsNullOrWhiteSpace(model.Password) || !ValidationUtils.IsPassword(model.Password))
-            {
-                throw new ArgumentException("Mật khẩu phải có tối thiểu 6 ký tự, bao gồm ít nhất 1 chữ cái và 1 chữ số.");
-            }
 
             // Kiểm tra định dạng Email
             if (string.IsNullOrWhiteSpace(model.Email) || !ValidationUtils.IsEmail(model.Email))
@@ -92,43 +75,14 @@ public class CreateDoctorCommand : IRequest<Unit>
             {
                 throw new ArgumentException($"Mã bac si '{model.DoctorCode}' đã tồn tại trên hệ thống.");
             }
-
-            // Kiểm tra trùng Tên đăng nhập trong CSDL
-            var checkUsername = await _dataContext.VcUsers
-                .AnyAsync(x => x.Username == model.Username.Trim(), cancellationToken);
-            if (checkUsername)
-            {
-                throw new ArgumentException($"Tên đăng nhập '{model.Username}' đã tồn tại trên hệ thống. Vui lòng chọn tên khác.");
-            }
-
-            // Kiểm tra trùng Email trong CSDL
-            var checkEmail = await _dataContext.VcUsers
-                .AnyAsync(x => x.Email == model.Email.Trim(), cancellationToken);
-            if (checkEmail)
-            {
-                throw new ArgumentException($"Email '{model.Email}' đã được sử dụng bởi một tài khoản khác trong hệ thống.");
-            }
+            
             #endregion
 
             #region Lưu dữ liệu vào CSDL
-            // Tạo tài khoản User trước để SQL Server cấp UserId
-            var userEntity = new VcUsers
-            {
-                Username = model.Username,
-                Email = model.Email,
-                Password = _bcryptPasswordHasher.HashPassword(model.Password),
-                IsActive = true,
-                Role = Role.DOCTOR.ToString(),
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-            await _dataContext.VcUsers.AddAsync(userEntity, cancellationToken);
-            await _dataContext.SaveChangesAsync(cancellationToken);
-
             // Tạo hồ sơ Bác sĩ gắn với UserId vừa sinh
             var doctorEntity = new VcDoctors
             {
-                UserId = userEntity.UserId,
+                UserId = model.UserId,
                 FullName = model.FullName,
                 DoctorCode = model.DoctorCode,
                 LicenseNumber = model.LicenseNumber,

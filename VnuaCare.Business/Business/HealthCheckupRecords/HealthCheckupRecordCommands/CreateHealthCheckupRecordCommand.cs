@@ -33,10 +33,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
         private readonly ICacheService _cacheService;            // Dịch vụ quản lý và làm mới bộ nhớ đệm (Cache)
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất thông tin người dùng đang đăng nhập (Role, UserId)
 
-        public Handler(
-            VnuaCareDataContext dataContext, 
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
@@ -51,7 +48,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
             var model = request.Model;
             Log.Information("Bắt đầu thêm hồ sơ khám sức khỏe mới: " + JsonSerializer.Serialize(model));
 
-            #region 1. Phân quyền người thực hiện (Authorization)
+            #region Phân quyền
             // Chỉ tài khoản có vai trò HEALTH_ADMIN hoặc SUPER_ADMIN mới có quyền lập hồ sơ khám sức khỏe
             var currentUserRole = _contextAccessor.Role;
 
@@ -62,7 +59,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 2. Kiểm tra tính hợp lệ dữ liệu đầu vào (Validation)
+            #region Kiểm tra tính hợp lệ dữ liệu
             // Kiểm tra ID đợt khám sức khỏe
             if (model.CampaignId <= 0)
             {
@@ -82,7 +79,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 3. Kiểm tra tính hợp lệ của các thực thể liên quan (Business Existence Check)
+            #region Kiểm tra dữ liệu liên quan
             // Kiểm tra đợt khám sức khỏe có tồn tại trong hệ thống hay không
             var campaignExists = await _dataContext.VcCheckupCampaigns
                 .AnyAsync(x => x.CampaignId == model.CampaignId, cancellationToken);
@@ -111,7 +108,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 4. Kiểm tra trùng lặp thông tin định danh (Check Duplicate)
+            #region Kiểm tra trùng lặp
             // Kiểm tra trùng lặp mã vạch SID (mỗi hồ sơ khám có một mã định danh duy nhất)
             var isSidExisted = await _dataContext.VcHealthCheckupRecords
                 .AnyAsync(x => x.SidCode == model.SidCode.Trim(), cancellationToken);
@@ -129,7 +126,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 5. Khởi tạo thực thể và lưu vào CSDL (Persistence)
+            #region Lưu vào CSDL
             var recordEntity = new VcHealthCheckupRecords
             {
                 CampaignId = model.CampaignId,
@@ -151,7 +148,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 6. Xóa bộ nhớ đệm (Cache Invalidation)
+            #region Xóa Cache
             // Xóa cache danh sách dropdown/lọc hồ sơ khám và cache chi tiết nếu có
             _cacheService.Remove(HealthCheckupRecordConstant.BuildCacheKey());
             _cacheService.Remove(HealthCheckupRecordConstant.BuildCacheKey(recordEntity.RecordId.ToString()));

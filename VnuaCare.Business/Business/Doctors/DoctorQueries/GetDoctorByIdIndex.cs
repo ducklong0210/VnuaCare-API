@@ -29,10 +29,7 @@ public class GetDoctorByIdIndex : IRequest<DoctorModel>
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất thông tin người dùng từ Token
         private readonly ICacheService _cacheService;            // Dịch vụ lưu và đọc dữ liệu từ Cache
 
-        public Handler(
-            VnuaCareReadDataContext dataContext, 
-            IContextAccessor contextAccessor, 
-            ICacheService cacheService)
+        public Handler(VnuaCareReadDataContext dataContext, IContextAccessor contextAccessor, ICacheService cacheService)
         {
             _dataContext = dataContext;
             _contextAccessor = contextAccessor;

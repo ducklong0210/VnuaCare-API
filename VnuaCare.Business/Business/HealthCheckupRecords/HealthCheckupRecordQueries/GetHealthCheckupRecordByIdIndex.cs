@@ -31,10 +31,7 @@ public class GetHealthCheckupRecordByIdIndex : IRequest<HealthCheckupRecordModel
         private readonly ICacheService _cacheService;
         private readonly IContextAccessor _contextAccessor;
 
-        public Handler(
-            VnuaCareReadDataContext dataContext, 
-            ICacheService cacheService,
-            IContextAccessor contextAccessor)
+        public Handler(VnuaCareReadDataContext dataContext, ICacheService cacheService, IContextAccessor contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;

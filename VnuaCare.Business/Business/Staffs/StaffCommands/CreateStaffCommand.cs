@@ -30,18 +30,15 @@ public class CreateStaffCommand : IRequest<Unit>
         private readonly VnuaCareDataContext _dataContext;        // Kết nối CSDL để ghi dữ liệu User và Staff
         private readonly ICacheService _cacheService;            // Dịch vụ xóa cache sau khi thêm mới
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất Role của người thực hiện
-        private readonly IBcryptPasswordHasher _passwordHasher;  // Dịch vụ băm mật khẩu BCrypt
 
         public Handler(
             VnuaCareDataContext dataContext, 
             ICacheService cacheService, 
-            Func<IContextAccessor> contextAccessor,
-            IBcryptPasswordHasher passwordHasher)
+            Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
             _contextAccessor = contextAccessor();
-            _passwordHasher = passwordHasher;
         }
 
         // Xử lý kiểm tra dữ liệu, tạo tài khoản đăng nhập và lưu hồ sơ Cán bộ
@@ -62,21 +59,6 @@ public class CreateStaffCommand : IRequest<Unit>
             #endregion
 
             #region Validation
-
-            if (string.IsNullOrWhiteSpace(model.Username) || !ValidationUtils.IsUsername(model.Username))
-            {
-                throw new ArgumentException("Tên đăng nhập không hợp lệ (không chứa khoảng trắng và tối thiểu 3 ký tự).");
-            }
-
-            if (string.IsNullOrWhiteSpace(model.Password) || !ValidationUtils.IsPassword(model.Password))
-            {
-                throw new ArgumentException("Mật khẩu phải có tối thiểu 6 ký tự, bao gồm ít nhất 1 chữ cái và 1 chữ số.");
-            }
-
-            if (string.IsNullOrWhiteSpace(model.Email) || !ValidationUtils.IsEmail(model.Email))
-            {
-                throw new ArgumentException("Địa chỉ Email không đúng định dạng.");
-            }
 
             if (model.DepartmentId <= 0)
             {
@@ -101,22 +83,6 @@ public class CreateStaffCommand : IRequest<Unit>
                 throw new ArgumentException($"Mã cán bộ '{model.StaffCode}' đã tồn tại trên hệ thống.");
             }
 
-            // Kiểm tra trùng Tên đăng nhập trong bảng 
-            var checkUsername = await _dataContext.VcUsers
-                .AnyAsync(x => x.Username == model.Username.Trim(), cancellationToken);
-            if (checkUsername)
-            {
-                throw new ArgumentException($"Tên đăng nhập '{model.Username}' đã tồn tại trên hệ thống. Vui lòng chọn tên khác.");
-            }
-
-            // Kiểm tra trùng Email trong bảng
-            var checkEmail = await _dataContext.VcUsers
-                .AnyAsync(x => x.Email == model.Email.Trim(), cancellationToken);
-            if (checkEmail)
-            {
-                throw new ArgumentException($"Email '{model.Email}' đã được sử dụng bởi một tài khoản khác trong hệ thống.");
-            }
-
             // Kiểm tra trùng Số điện thoại trong bảng 
             if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
             {
@@ -127,28 +93,22 @@ public class CreateStaffCommand : IRequest<Unit>
                     throw new ArgumentException($"Số điện thoại '{model.PhoneNumber}' đã được đăng ký bởi cán bộ khác.");
                 }
             }
+            
+            // kiểm tra còn hoạt động không
+            var userEntity = await _dataContext.VcUsers
+                .FirstOrDefaultAsync(x => x.UserId == model.UserId && x.IsActive, cancellationToken);
+            if (userEntity == null)
+            {
+                throw new ArgumentException("Tài khoản người dùng không tồn tại hoặc đã bị khóa.");
+            }
             #endregion
 
             #region Lưu tk vào CSDL
-            // Tạo tài khoản đăng nhập 
-            var userEntity = new VcUsers
-            {
-                Username = model.Username.Trim(),
-                Email = model.Email.Trim(),
-                Password = _passwordHasher.HashPassword(model.Password),
-                Role = Role.STAFF.ToString(), //  Role là STAFF
-                IsActive = true,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-
-            await _dataContext.VcUsers.AddAsync(userEntity, cancellationToken);
-            await _dataContext.SaveChangesAsync(cancellationToken); 
 
             //Tạo hồ sơ cán bộ VcStaffs gắn liền với UserId vừa sinh
             var staffEntity = new VcStaffs
             {
-                UserId = userEntity.UserId,
+                UserId = model.UserId,
                 DepartmentId = model.DepartmentId,
                 EmployeeCode = model.StaffCode.Trim(),
                 FullName = model.FullName.Trim(),
@@ -170,7 +130,7 @@ public class CreateStaffCommand : IRequest<Unit>
             _cacheService.Remove(VnuaCareCacheConstant.LIST_SELECT);
             #endregion
 
-            Log.Information($"Thêm cán bộ thành công: {staffEntity.FullName} ({staffEntity.EmployeeCode}) - UserId: {userEntity.UserId}");
+            Log.Information($"Thêm cán bộ thành công: {staffEntity.FullName} ({staffEntity.EmployeeCode}) - UserId: {model.UserId}");
 
             return Unit.Value;
         }

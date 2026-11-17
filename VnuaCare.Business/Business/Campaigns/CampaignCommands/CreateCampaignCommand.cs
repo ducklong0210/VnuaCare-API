@@ -12,7 +12,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
+namespace VnuaCare.Business.Business.Campaigns.CampaignCommands;
 
 public class CreateCampaignCommand : IRequest<Unit>
 {
@@ -25,26 +25,24 @@ public class CreateCampaignCommand : IRequest<Unit>
 
     public class Handler : IRequestHandler<CreateCampaignCommand, Unit>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly ICacheService _cacheService;
-        private readonly IContextAccessor _contextAccessor;
+        private readonly VnuaCareDataContext _dataContext;        // Kết nối CSDL để ghi dữ liệu đợt khám
+        private readonly ICacheService _cacheService;            // Dịch vụ xóa Cache sau khi thêm mới
+        private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất Role của người thực hiện
 
-        public Handler(
-            VnuaCareDataContext dataContext,
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
             _contextAccessor = contextAccessor();
         }
 
+        // Xử lý kiểm tra dữ liệu, quyền hạn và lưu đợt khám mới vào CSDL
         public async Task<Unit> Handle(CreateCampaignCommand request, CancellationToken cancellationToken)
         {
             var model = request.Model;
             Log.Information("Bắt đầu thêm đợt khám mới: " + JsonSerializer.Serialize(model));
 
-            #region 1. Phân quyền
+            #region Phân quyền
             var currentUserRole = _contextAccessor.Role;
             if (currentUserRole != Role.SUPER_ADMIN.ToString() && currentUserRole != Role.HEALTH_ADMIN.ToString())
             {
@@ -52,7 +50,7 @@ public class CreateCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 2. Kiểm tra dữ liệu
+            #region Kiểm tra dữ liệu
             if (string.IsNullOrWhiteSpace(model.CampaignName))
             {
                 throw new ArgumentException("Tên đợt khám không được để trống.");
@@ -63,6 +61,7 @@ public class CreateCampaignCommand : IRequest<Unit>
                 throw new ArgumentException("Mã đợt khám không được để trống.");
             }
 
+            // Kiểm tra trùng mã đợt khám
             var isCodeExisted = await _dataContext.VcCheckupCampaigns
                 .AnyAsync(x => x.CampaignCode == model.CampaignCode.Trim(), cancellationToken);
             if (isCodeExisted)
@@ -71,7 +70,7 @@ public class CreateCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 3. Tạo entity và lưu CSDL
+            #region Lưu vào CSDL
             var campaign = new VcCheckupCampaigns
             {
                 CampaignName = model.CampaignName.Trim(),
@@ -87,7 +86,7 @@ public class CreateCampaignCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 4. Xóa Cache
+            #region Xóa Cache
             _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
             #endregion
 

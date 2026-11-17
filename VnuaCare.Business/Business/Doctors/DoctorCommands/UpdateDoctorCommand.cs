@@ -32,11 +32,7 @@ public class UpdateDoctorCommand : IRequest<Unit>
         private readonly ICacheService _cacheService;            // Dịch vụ xóa Cache sau khi cập nhật
         private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất Role của người thực hiện
 
-        public Handler(
-            VnuaCareDataContext dataContext, 
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor, 
-            IBcryptPasswordHasher cryptPasswordHasher)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor, IBcryptPasswordHasher cryptPasswordHasher)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;

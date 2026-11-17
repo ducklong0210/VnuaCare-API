@@ -44,7 +44,7 @@ public class VcInternalMedicineExams
     public string? HealthClass { get; set; } // Phân loại sức khỏe nội khoa (LOẠI I, LOẠI II...)
 
     [Column("examining_doctor_id", TypeName = "int")]
-    public int? ExaminingDoctorId { get; set; } // ID bác sĩ trực tiếp khám nội khoa
+    public int ExaminingDoctorId { get; set; } // ID bác sĩ trực tiếp khám nội khoa
 
     [Column("created_at", TypeName = "datetime2")]
     public DateTime CreatedAt { get; set; } // Thời điểm thực hiện khám nội khoa

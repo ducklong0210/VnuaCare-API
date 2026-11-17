@@ -10,7 +10,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CampaignCommands;
+namespace VnuaCare.Business.Business.Campaigns.CampaignCommands;
 
 public class DeleteCampaignCommand : IRequest<Unit>
 {
@@ -23,25 +23,23 @@ public class DeleteCampaignCommand : IRequest<Unit>
 
     public class Handler : IRequestHandler<DeleteCampaignCommand, Unit>
     {
-        private readonly VnuaCareDataContext _dataContext;
-        private readonly ICacheService _cacheService;
-        private readonly IContextAccessor _contextAccessor;
+        private readonly VnuaCareDataContext _dataContext;        // Kết nối CSDL để xóa đợt khám
+        private readonly ICacheService _cacheService;            // Dịch vụ xóa Cache sau khi xóa dữ liệu
+        private readonly IContextAccessor _contextAccessor;      // Dịch vụ trích xuất Role của người thực hiện
 
-        public Handler(
-            VnuaCareDataContext dataContext,
-            ICacheService cacheService,
-            Func<IContextAccessor> contextAccessor)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, Func<IContextAccessor> contextAccessor)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
             _contextAccessor = contextAccessor();
         }
 
+        // Xử lý kiểm tra dữ liệu, ràng buộc hồ sơ và xóa đợt khám khỏi CSDL
         public async Task<Unit> Handle(DeleteCampaignCommand request, CancellationToken cancellationToken)
         {
             Log.Information($"Bắt đầu xóa đợt khám ID: {request.CampaignId}");
 
-            #region 1. Phân quyền
+            #region Phân quyền
             var currentUserRole = _contextAccessor.Role;
             if (currentUserRole != Role.SUPER_ADMIN.ToString() && currentUserRole != Role.HEALTH_ADMIN.ToString())
             {
@@ -49,7 +47,7 @@ public class DeleteCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 2. Kiểm tra tồn tại
+            #region Kiểm tra tồn tại
             var entity = await _dataContext.VcCheckupCampaigns
                 .FirstOrDefaultAsync(x => x.CampaignId == request.CampaignId, cancellationToken);
             if (entity == null)
@@ -58,7 +56,7 @@ public class DeleteCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 3. Kiểm tra ràng buộc dữ liệu
+            #region Kiểm tra ràng buộc dữ liệu
             var hasRecords = await _dataContext.VcHealthCheckupRecords
                 .AnyAsync(x => x.CampaignId == request.CampaignId, cancellationToken);
             if (hasRecords)
@@ -67,12 +65,12 @@ public class DeleteCampaignCommand : IRequest<Unit>
             }
             #endregion
 
-            #region 4. Xóa và lưu CSDL
+            #region Xóa khỏi CSDL
             _dataContext.VcCheckupCampaigns.Remove(entity);
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region 5. Xóa Cache
+            #region Xóa Cache
             _cacheService.Remove($"campaigns-{VnuaCareCacheConstant.LIST_SELECT}");
             #endregion
 

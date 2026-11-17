@@ -9,7 +9,7 @@ using VnuaCare.Business.Business.Services;
 using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
+namespace VnuaCare.Business.Business.Campaigns.CampaignQueries;
 
 /// <summary>
 /// Query lấy danh sách Đợt khám sức khỏe phục vụ hiển thị combobox / dropdown trên giao diện
@@ -51,13 +51,13 @@ public class GetComboxCampaignQuery : IRequest<List<CampaignSelectModel>>
 
                 if (!string.IsNullOrWhiteSpace(request.Status))
                 {
-                    var statusFilter = request.Status.Trim();
-                    query = query.Where(x => x.Status == statusFilter);
+                    var status = request.Status.Trim().ToUpper();
+                    query = query.Where(x => x.Status.ToUpper() == status);
                 }
 
                 var list = await query
                     .OrderByDescending(x => x.Year)
-                    .ThenByDescending(x => x.CampaignId)
+                    .ThenByDescending(x => x.StartDate)
                     .Select(x => new CampaignSelectModel
                     {
                         CampaignId = x.CampaignId,
