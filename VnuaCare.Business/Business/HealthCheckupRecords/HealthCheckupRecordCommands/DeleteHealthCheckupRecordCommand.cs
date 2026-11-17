@@ -11,7 +11,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CheckupRecordCommands;
+namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordCommands;
 
 /// <summary>
 /// Lệnh xóa hồ sơ khám sức khỏe (Health Checkup Record)

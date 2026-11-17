@@ -13,7 +13,7 @@ using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Shared.ContextAccessor;
 using VnuaCare.Shared.Enums;
 
-namespace VnuaCare.Business.Business.HealthCheckupRecords.CheckupRecordCommands;
+namespace VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordCommands;
 
 /// <summary>
 /// Lệnh thêm mới hồ sơ khám sức khỏe tổng hợp của cán bộ (vc_health_checkup_records)

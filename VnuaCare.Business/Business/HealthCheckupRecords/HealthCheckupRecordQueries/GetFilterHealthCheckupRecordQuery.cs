@@ -111,19 +111,19 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
             }
 
             // Lọc theo Trạng thái hồ sơ (PENDING, COMPLETED, ...)
-            if (!string.IsNullOrWhiteSpace(filter.Status))
+            if (!string.IsNullOrWhiteSpace(filter.Status) && !string.Equals(filter.Status.Trim(), "string", StringComparison.OrdinalIgnoreCase))
             {
                 query = query.Where(x => x.Status == filter.Status.Trim());
             }
 
             // Lọc theo Phân loại sức khỏe (LOAI_I, LOAI_II, ...)
-            if (!string.IsNullOrWhiteSpace(filter.HealthClassification))
+            if (!string.IsNullOrWhiteSpace(filter.HealthClassification) && !string.Equals(filter.HealthClassification.Trim(), "string", StringComparison.OrdinalIgnoreCase))
             {
                 query = query.Where(x => x.HealthClassification == filter.HealthClassification.Trim());
             }
 
             // Tìm kiếm tự do theo từ khóa (TextSearch): Mã SID, Mã/Tên cán bộ, Bác sĩ kết luận, Kết luận, Lời dặn
-            if (!string.IsNullOrWhiteSpace(filter.TextSearch))
+            if (!string.IsNullOrWhiteSpace(filter.TextSearch) && !string.Equals(filter.TextSearch.Trim(), "string", StringComparison.OrdinalIgnoreCase))
             {
                 string ts = filter.TextSearch.Trim().ToLower();
                 query = query.Where(x =>

@@ -6,12 +6,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.HealthCheckupRecords;
-using VnuaCare.Business.Business.HealthCheckupRecords.CheckupRecordCommands;
+using VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordCommands;
 using VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
-using VnuaCare.Business.Business.Staffs;
-using VnuaCare.Business.Business.Staffs.StaffQueries;
-using VnuaCare.Business.Business.Doctors;
-using VnuaCare.Business.Business.Doctors.DoctorQueries;
 using VnuaCare.Shared.Helper;
 using VnuaCare.Shared.Utils;
 
@@ -132,50 +128,6 @@ public class HealthCheckupRecordController : ApiControllerBase
         return await ExecuteFuntion(async () =>
         {
             return await _mediator.Send(new GetComboxRecordStatusQuery());
-        });
-    }
-
-    /// <summary>
-    /// Lấy danh sách Cán bộ phục vụ chọn trong hồ sơ khám (Combobox / Dropdown)
-    /// </summary>
-    /// <param name="departmentId">ID Khoa / Phòng ban cần lọc</param>
-    /// <returns>Danh sách cán bộ rút gọn</returns>
-    [HttpGet, Route("staffs")]
-    [ProducesResponseType(typeof(ResponseObject<List<StaffSelectModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetStaffs([FromQuery] int? departmentId)
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new GetComboxStaffQuery(departmentId));
-        });
-    }
-
-    /// <summary>
-    /// Lấy danh sách Bác sĩ kết luận hồ sơ khám (Combobox / Dropdown)
-    /// </summary>
-    /// <param name="specialtyId">ID Chuyên khoa y tế cần lọc</param>
-    /// <returns>Danh sách bác sĩ rút gọn</returns>
-    [HttpGet, Route("doctors")]
-    [ProducesResponseType(typeof(ResponseObject<List<DoctorSelectModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDoctors([FromQuery] int? specialtyId)
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new GetComboxDocTorQuery(specialtyId));
-        });
-    }
-
-    /// <summary>
-    /// Lấy danh sách Khoa / Phòng ban phục vụ lọc hồ sơ khám (Combobox / Dropdown)
-    /// </summary>
-    /// <returns>Danh sách khoa phòng ban rút gọn</returns>
-    [HttpGet, Route("departments")]
-    [ProducesResponseType(typeof(ResponseObject<List<DepartmentSelectModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDepartments()
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new GetComboxDepartmentQuery());
         });
     }
 }
