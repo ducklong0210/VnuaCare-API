@@ -123,6 +123,30 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+// Cấu hình CORS
+var webAppPolicy = "WebAppPolicy";
+builder.Services.AddCors(options =>
+{
+    // Môi trường Production: Đọc từ appsettings.json
+    var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+    options.AddPolicy(webAppPolicy, policy =>
+    {
+        if (allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+    });
+    // Môi trường Development: Mở cho mọi Frontend truy cập thoải mái
+    options.AddPolicy("AllowAll_Dev", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 // tạm thời chưa cần bản dịch
 // builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
@@ -147,11 +171,28 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "VNUA CARE API v1");
+        c.DisplayRequestDuration(); 
+        c.EnableDeepLinking();      
+        c.ShowExtensions();
+        
+        // Inject file JS để thêm nút Copy
+        c.InjectJavascript("/js/custom-swagger.js");
+    });
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles(); 
+app.UseRouting();
+// KÍCH HOẠT CORS
+if (app.Environment.IsDevelopment()) {
+    app.UseCors("AllowAll_Dev"); 
+}
+else {
+    app.UseCors(webAppPolicy);  
+}
 // Kích hoạt Authentication & Authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
