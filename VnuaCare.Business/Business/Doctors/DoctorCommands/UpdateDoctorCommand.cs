@@ -56,7 +56,8 @@ public class UpdateDoctorCommand : IRequest<Unit>
             // Kiểm tra phân quyền người thực hiện
             var currentRole = _contextAccessor.Role;
             if (currentRole != Role.SUPER_ADMIN.ToString() &&
-                currentRole != Role.HEALTH_ADMIN.ToString())
+                currentRole != Role.HEALTH_ADMIN.ToString() &&
+                currentRole != Role.DOCTOR.ToString())
             {
                 throw new ArgumentException("Bạn không có quyền thay đổi thông tin bác sĩ.");
             }

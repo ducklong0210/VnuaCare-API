@@ -78,7 +78,7 @@ public class VcSpecialistExams
     public string? HealthClass { get; set; } // Phân loại sức khỏe chuyên khoa: Loại I, II, III, IV, V
 
     [Column("examining_doctor_id", TypeName = "int")]
-    public int ExaminingDoctorId { get; set; } // ID bác sĩ thực hiện khám chuyên khoa
+    public int? ExaminingDoctorId { get; set; } // ID bác sĩ thực hiện khám chuyên khoa
 
     [Column("created_at", TypeName = "datetime2")]
     public DateTime CreatedAt { get; set; } = DateTime.Now; // Thời điểm thực hiện khám

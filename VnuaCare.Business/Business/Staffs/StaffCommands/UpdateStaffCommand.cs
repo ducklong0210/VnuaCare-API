@@ -57,6 +57,7 @@ public class UpdateStaffCommand : IRequest<Unit>
             var currentRole = _contextAccessor.Role;
             if (currentRole != Role.SUPER_ADMIN.ToString() && 
                 currentRole != Role.HEALTH_ADMIN.ToString() &&
+            currentRole != Role.DOCTOR.ToString() &&
                 currentRole != Role.STAFF.ToString())
             {
                 throw new ArgumentException("Bạn không có quyền thay đổi thông tin cán bộ.");

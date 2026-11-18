@@ -5,9 +5,15 @@
 
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using VnuaCare.Business.Business.Campaigns;
+using VnuaCare.Business.Business.Campaigns.CampaignQueries;
+using VnuaCare.Business.Business.Doctors;
+using VnuaCare.Business.Business.Doctors.DoctorQueries;
 using VnuaCare.Business.Business.HealthCheckupRecords;
 using VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordCommands;
 using VnuaCare.Business.Business.HealthCheckupRecords.HealthCheckupRecordQueries;
+using VnuaCare.Business.Business.Staffs;
+using VnuaCare.Business.Business.Staffs.StaffQueries;
 using VnuaCare.Shared.Helper;
 using VnuaCare.Shared.Utils;
 
@@ -26,6 +32,66 @@ public class HealthCheckupRecordController : ApiControllerBase
     public HealthCheckupRecordController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    /// <summary>
+    /// Lấy danh sách Bác sĩ dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <param name="specialtyId">ID chuyên khoa (tùy chọn lọc)</param>
+    /// <returns>Danh sách bác sĩ rút gọn</returns>
+    [HttpGet, Route("doctors")]
+    [ProducesResponseType(typeof(ResponseObject<List<DoctorSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDoctors([FromQuery] int? specialtyId)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxDocTorQuery(specialtyId));
+        });
+    }
+
+    /// <summary>
+    /// Lấy danh sách Cán bộ dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <param name="departmentId">ID Khoa/Phòng ban (tùy chọn lọc)</param>
+    /// <returns>Danh sách cán bộ rút gọn</returns>
+    [HttpGet, Route("staffs")]
+    [ProducesResponseType(typeof(ResponseObject<List<StaffSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetStaffs([FromQuery] int? departmentId)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxStaffQuery(departmentId));
+        });
+    }
+
+    /// <summary>
+    /// Lấy danh sách Khoa / Phòng ban dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <returns>Danh sách khoa phòng ban rút gọn</returns>
+    [HttpGet, Route("departments")]
+    [ProducesResponseType(typeof(ResponseObject<List<DepartmentSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDepartments()
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxDepartmentQuery());
+        });
+    }
+
+    /// <summary>
+    /// Lấy danh sách Đợt khám sức khỏe dạng danh mục chọn (Combobox / Dropdown)
+    /// </summary>
+    /// <param name="year">Năm tổ chức đợt khám</param>
+    /// <param name="status">Trạng thái đợt khám</param>
+    /// <returns>Danh sách đợt khám rút gọn</returns>
+    [HttpGet, Route("campaigns")]
+    [ProducesResponseType(typeof(ResponseObject<List<CampaignSelectModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCampaigns([FromQuery] int? year, [FromQuery] string? status)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetComboxCampaignQuery(year, status));
+        });
     }
 
     /// <summary>
@@ -100,34 +166,6 @@ public class HealthCheckupRecordController : ApiControllerBase
         return await ExecuteFuntion(async () =>
         {
             return await _mediator.Send(new DeleteHealthCheckupRecordCommand(id));
-        });
-    }
-
-    /// <summary>
-    /// Lấy danh mục Phân loại sức khỏe theo tiêu chuẩn Bộ Y tế (Loại I đến Loại V)
-    /// </summary>
-    /// <returns>Danh mục phân loại sức khỏe</returns>
-    [HttpGet, Route("classifications")]
-    [ProducesResponseType(typeof(ResponseObject<List<HealthClassificationSelectModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetClassifications()
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new GetComboxHealthClassificationQuery());
-        });
-    }
-
-    /// <summary>
-    /// Lấy danh mục Trạng thái hồ sơ khám sức khỏe (Combobox / Dropdown)
-    /// </summary>
-    /// <returns>Danh mục trạng thái hồ sơ</returns>
-    [HttpGet, Route("statuses")]
-    [ProducesResponseType(typeof(ResponseObject<List<RecordStatusSelectModel>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetStatuses()
-    {
-        return await ExecuteFuntion(async () =>
-        {
-            return await _mediator.Send(new GetComboxRecordStatusQuery());
         });
     }
 }

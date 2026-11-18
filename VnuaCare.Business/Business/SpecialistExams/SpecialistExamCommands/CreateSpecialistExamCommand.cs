@@ -62,20 +62,11 @@ public class CreateSpecialistExamCommand : IRequest<Unit>
             }
             #endregion
 
-            #region Kiểm tra trùng lặp
+            #region Kiểm tra chuyên khoa và bác sĩ khám
             string specialtyType = model.SpecialtyType.Trim().ToUpperInvariant();
 
-            var exists = await _dataContext.VcSpecialistExams
-                .AnyAsync(x => x.RecordId == model.RecordId && x.SpecialtyType == specialtyType, cancellationToken);
-            if (exists)
-            {
-                throw new ArgumentException($"Hồ sơ khám ID {model.RecordId} đã có kết quả khám chuyên khoa {specialtyType}. Vui lòng sử dụng chức năng cập nhật (Update).");
-            }
-            #endregion
-
-            #region Xác định bác sĩ khám
             int? doctorId = model.ExaminingDoctorId;
-            if (!doctorId.HasValue && currentUserRole == Role.DOCTOR.ToString())
+            if ((!doctorId.HasValue || doctorId <= 0) && currentUserRole == Role.DOCTOR.ToString())
             {
                 var currentUserId = _contextAccessor.UserId;
                 if (currentUserId.HasValue)
@@ -89,34 +80,66 @@ public class CreateSpecialistExamCommand : IRequest<Unit>
                     }
                 }
             }
+            int? finalDoctorId = (doctorId.HasValue && doctorId.Value > 0) ? doctorId.Value : null;
             #endregion
 
-            #region Lưu vào CSDL
-            var exam = new VcSpecialistExams
-            {
-                RecordId = model.RecordId,
-                SpecialtyType = specialtyType,
-                VisionLeftNoGlass = model.VisionLeftNoGlass,
-                VisionRightNoGlass = model.VisionRightNoGlass,
-                VisionLeftGlass = model.VisionLeftGlass,
-                VisionRightGlass = model.VisionRightGlass,
-                UpperJaw = model.UpperJaw,
-                LowerJaw = model.LowerJaw,
-                TeethFormula = model.TeethFormula,
-                EarLeftDesc = model.EarLeftDesc,
-                EarRightDesc = model.EarRightDesc,
-                NoseDesc = model.NoseDesc,
-                ThroatDesc = model.ThroatDesc,
-                SkinDesc = model.SkinDesc,
-                SurgicalDesc = model.SurgicalDesc,
-                ObstetricDesc = model.ObstetricDesc,
-                Conclusion = model.Conclusion,
-                HealthClass = model.HealthClass,
-                ExaminingDoctorId = doctorId ?? 0,
-                CreatedAt = DateTime.Now
-            };
+            #region Lưu hoặc Cập nhật vào CSDL (Upsert)
+            var existingExam = await _dataContext.VcSpecialistExams
+                .FirstOrDefaultAsync(x => x.RecordId == model.RecordId && x.SpecialtyType == specialtyType, cancellationToken);
 
-            await _dataContext.VcSpecialistExams.AddAsync(exam, cancellationToken);
+            if (existingExam != null)
+            {
+                existingExam.VisionLeftNoGlass = model.VisionLeftNoGlass;
+                existingExam.VisionRightNoGlass = model.VisionRightNoGlass;
+                existingExam.VisionLeftGlass = model.VisionLeftGlass;
+                existingExam.VisionRightGlass = model.VisionRightGlass;
+                existingExam.UpperJaw = model.UpperJaw;
+                existingExam.LowerJaw = model.LowerJaw;
+                existingExam.TeethFormula = model.TeethFormula;
+                existingExam.EarLeftDesc = model.EarLeftDesc;
+                existingExam.EarRightDesc = model.EarRightDesc;
+                existingExam.NoseDesc = model.NoseDesc;
+                existingExam.ThroatDesc = model.ThroatDesc;
+                existingExam.SkinDesc = model.SkinDesc;
+                existingExam.SurgicalDesc = model.SurgicalDesc;
+                existingExam.ObstetricDesc = model.ObstetricDesc;
+                existingExam.Conclusion = model.Conclusion;
+                existingExam.HealthClass = model.HealthClass;
+                if (finalDoctorId.HasValue)
+                {
+                    existingExam.ExaminingDoctorId = finalDoctorId.Value;
+                }
+
+                _dataContext.VcSpecialistExams.Update(existingExam);
+            }
+            else
+            {
+                var exam = new VcSpecialistExams
+                {
+                    RecordId = model.RecordId,
+                    SpecialtyType = specialtyType,
+                    VisionLeftNoGlass = model.VisionLeftNoGlass,
+                    VisionRightNoGlass = model.VisionRightNoGlass,
+                    VisionLeftGlass = model.VisionLeftGlass,
+                    VisionRightGlass = model.VisionRightGlass,
+                    UpperJaw = model.UpperJaw,
+                    LowerJaw = model.LowerJaw,
+                    TeethFormula = model.TeethFormula,
+                    EarLeftDesc = model.EarLeftDesc,
+                    EarRightDesc = model.EarRightDesc,
+                    NoseDesc = model.NoseDesc,
+                    ThroatDesc = model.ThroatDesc,
+                    SkinDesc = model.SkinDesc,
+                    SurgicalDesc = model.SurgicalDesc,
+                    ObstetricDesc = model.ObstetricDesc,
+                    Conclusion = model.Conclusion,
+                    HealthClass = model.HealthClass,
+                    ExaminingDoctorId = finalDoctorId,
+                    CreatedAt = DateTime.Now
+                };
+
+                await _dataContext.VcSpecialistExams.AddAsync(exam, cancellationToken);
+            }
 
             // Chuyển trạng thái hồ sơ sang IN_PROGRESS nếu đang là PENDING
             if (record.Status == "PENDING")

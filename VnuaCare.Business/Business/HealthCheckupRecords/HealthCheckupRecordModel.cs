@@ -111,23 +111,3 @@ public record HealthCheckupRecordFilterModel : BaseQueryFilterModel
     public string? Status { get; set; }
     public string? HealthClassification { get; set; }
 }
-
-/// <summary>
-/// DTO danh mục Phân loại sức khỏe (Theo tiêu chuẩn Bộ Y tế: Loại I đến Loại V)
-/// </summary>
-public record HealthClassificationSelectModel
-{
-    public string ClassificationCode { get; init; } = string.Empty;
-    public string ClassificationName { get; init; } = string.Empty;
-    public string? Description { get; init; }
-}
-
-/// <summary>
-/// DTO danh mục Trạng thái hồ sơ khám sức khỏe
-/// </summary>
-public record RecordStatusSelectModel
-{
-    public string StatusCode { get; init; } = string.Empty;
-    public string StatusName { get; init; } = string.Empty;
-    public string? Description { get; init; }
-}

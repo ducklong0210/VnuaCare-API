@@ -62,18 +62,9 @@ public class CreateInternalMedicineExamCommand : IRequest<Unit>
             }
             #endregion
 
-            #region Kiểm tra trùng lặp
-            var exists = await _dataContext.VcInternalMedicineExams
-                .AnyAsync(x => x.RecordId == model.RecordId, cancellationToken);
-            if (exists)
-            {
-                throw new ArgumentException($"Hồ sơ khám ID {model.RecordId} đã có kết quả khám nội khoa. Vui lòng sử dụng chức năng cập nhật (Update).");
-            }
-            #endregion
-
             #region Xác định bác sĩ khám
             int? doctorId = model.ExaminingDoctorId;
-            if (!doctorId.HasValue && currentUserRole == Role.DOCTOR.ToString())
+            if ((!doctorId.HasValue || doctorId <= 0) && currentUserRole == Role.DOCTOR.ToString())
             {
                 var currentUserId = _contextAccessor.UserId;
                 if (currentUserId.HasValue)
@@ -87,25 +78,49 @@ public class CreateInternalMedicineExamCommand : IRequest<Unit>
                     }
                 }
             }
+            int? finalDoctorId = (doctorId.HasValue && doctorId.Value > 0) ? doctorId.Value : null;
             #endregion
 
-            #region Lưu vào CSDL
-            var exam = new VcInternalMedicineExams
-            {
-                RecordId = model.RecordId,
-                CirculatoryDesc = model.CirculatoryDesc,
-                RespiratoryDesc = model.RespiratoryDesc,
-                DigestiveDesc = model.DigestiveDesc,
-                UrinaryDesc = model.UrinaryDesc,
-                MusculoskeletalDesc = model.MusculoskeletalDesc,
-                NeurologicalDesc = model.NeurologicalDesc,
-                Conclusion = model.Conclusion,
-                HealthClass = model.HealthClass,
-                ExaminingDoctorId = doctorId ?? 0,
-                CreatedAt = DateTime.Now
-            };
+            #region Lưu hoặc Cập nhật vào CSDL (Upsert)
+            var existingExam = await _dataContext.VcInternalMedicineExams
+                .FirstOrDefaultAsync(x => x.RecordId == model.RecordId, cancellationToken);
 
-            await _dataContext.VcInternalMedicineExams.AddAsync(exam, cancellationToken);
+            if (existingExam != null)
+            {
+                existingExam.CirculatoryDesc = model.CirculatoryDesc;
+                existingExam.RespiratoryDesc = model.RespiratoryDesc;
+                existingExam.DigestiveDesc = model.DigestiveDesc;
+                existingExam.UrinaryDesc = model.UrinaryDesc;
+                existingExam.MusculoskeletalDesc = model.MusculoskeletalDesc;
+                existingExam.NeurologicalDesc = model.NeurologicalDesc;
+                existingExam.Conclusion = model.Conclusion;
+                existingExam.HealthClass = model.HealthClass;
+                if (finalDoctorId.HasValue)
+                {
+                    existingExam.ExaminingDoctorId = finalDoctorId.Value;
+                }
+
+                _dataContext.VcInternalMedicineExams.Update(existingExam);
+            }
+            else
+            {
+                var exam = new VcInternalMedicineExams
+                {
+                    RecordId = model.RecordId,
+                    CirculatoryDesc = model.CirculatoryDesc,
+                    RespiratoryDesc = model.RespiratoryDesc,
+                    DigestiveDesc = model.DigestiveDesc,
+                    UrinaryDesc = model.UrinaryDesc,
+                    MusculoskeletalDesc = model.MusculoskeletalDesc,
+                    NeurologicalDesc = model.NeurologicalDesc,
+                    Conclusion = model.Conclusion,
+                    HealthClass = model.HealthClass,
+                    ExaminingDoctorId = finalDoctorId,
+                    CreatedAt = DateTime.Now
+                };
+
+                await _dataContext.VcInternalMedicineExams.AddAsync(exam, cancellationToken);
+            }
 
             // Chuyển trạng thái hồ sơ sang IN_PROGRESS nếu đang là PENDING
             if (record.Status == "PENDING")
