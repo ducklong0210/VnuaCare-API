@@ -58,12 +58,12 @@ public class GetComboxStaffQuery : IRequest<List<StaffSelectModel>>
                 }
 
                 var list = await query
-                    .OrderBy(x => x.FullName)
+                    .OrderBy(x => x.User != null ? x.User.FullName : "")
                     .Select(x => new StaffSelectModel
                     {
                         StaffId = x.StaffId,
                         StaffCode = x.EmployeeCode,
-                        FullName = x.FullName,
+                        FullName = x.User != null ? (x.User.FullName ?? "") : "",
                         Gender = x.Gender,
                         DepartmentId = x.DepartmentId,
                         DepartmentName = x.Department != null ? x.Department.DepartmentName : null,

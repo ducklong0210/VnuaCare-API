@@ -17,6 +17,8 @@ public abstract record HealthCheckupRecordBaseModel
     [Required(ErrorMessage = "Vui lòng nhập hoặc quét mã vạch hồ sơ (SID)")]
     public string SidCode { get; init; } = string.Empty;
     
+    public DateTime ExaminationDate { get; init; }
+    
     public DateTime ActualCheckupDate { get; init; }
     
     public string? MedicalHistoryPersonal { get; init; }
@@ -82,6 +84,7 @@ public record UpdateHealthCheckupRecordModel : HealthCheckupRecordBaseModel
     {
         if (!string.IsNullOrWhiteSpace(SidCode)) entity.SidCode = SidCode.Trim();
         if (ActualCheckupDate != default) entity.ActualCheckupDate = ActualCheckupDate;
+        if (ExaminationDate != default) entity.ExaminationDate = ExaminationDate;
         entity.MedicalHistoryPersonal = MedicalHistoryPersonal;
         entity.MedicalHistoryFamily = MedicalHistoryFamily;
         entity.HealthClassification = HealthClassification;

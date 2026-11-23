@@ -61,9 +61,15 @@ public class CreateCampaignCommand : IRequest<Unit>
                 throw new ArgumentException("Mã đợt khám không được để trống.");
             }
 
-            // Kiểm tra trùng mã đợt khám
+            if (model.StartDate > model.EndDate)
+            {
+                throw new ArgumentException("Ngày bắt đầu đợt khám không được lớn hơn ngày kết thúc.");
+            }
+
+            // Kiểm tra trùng mã đợt khám (chuẩn hóa chữ hoa)
+            string normalizedCode = model.CampaignCode.Trim().ToUpper();
             var isCodeExisted = await _dataContext.VcCheckupCampaigns
-                .AnyAsync(x => x.CampaignCode == model.CampaignCode.Trim(), cancellationToken);
+                .AnyAsync(x => x.CampaignCode.ToUpper() == normalizedCode, cancellationToken);
             if (isCodeExisted)
             {
                 throw new ArgumentException($"Mã đợt khám '{model.CampaignCode}' đã tồn tại.");

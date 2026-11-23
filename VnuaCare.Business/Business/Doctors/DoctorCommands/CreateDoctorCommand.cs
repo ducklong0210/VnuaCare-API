@@ -79,11 +79,19 @@ public class CreateDoctorCommand : IRequest<Unit>
             #endregion
 
             #region Lưu dữ liệu vào CSDL
+            var userEntity = await _dataContext.VcUsers
+                .FirstOrDefaultAsync(x => x.UserId == model.UserId, cancellationToken);
+            if (userEntity != null && !string.IsNullOrWhiteSpace(model.FullName))
+            {
+                userEntity.FullName = model.FullName.Trim();
+                userEntity.UpdatedAt = DateTime.Now;
+                _dataContext.VcUsers.Update(userEntity);
+            }
+
             // Tạo hồ sơ Bác sĩ gắn với UserId vừa sinh
             var doctorEntity = new VcDoctors
             {
                 UserId = model.UserId,
-                FullName = model.FullName,
                 DoctorCode = model.DoctorCode,
                 LicenseNumber = model.LicenseNumber,
                 SpecialtyId = model.SpecialtyId,
@@ -93,9 +101,10 @@ public class CreateDoctorCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            // Xóa Cache danh sách bác sĩ để cập nhật dữ liệu mới nhất
-            _cacheService.Remove(VnuaCareCacheConstant.DOCTOR);
-            _cacheService.Remove(VnuaCareCacheConstant.LIST_SELECT);
+            // Xóa Cache danh sách bác sĩ và cache người dùng liên kết để cập nhật dữ liệu mới nhất
+            _cacheService.Remove(DoctorConstant.BuildCacheKey());
+            _cacheService.Remove(DoctorConstant.BuildCacheKey($"specialty-{doctorEntity.SpecialtyId}"));
+            _cacheService.Remove(VnuaCare.Business.Business.Users.UserConstant.BuildCacheKey(model.UserId.ToString()));
             
             Log.Information("Thêm bác sĩ thành công ID: " + doctorEntity.DoctorId);
             return Unit.Value;

@@ -54,6 +54,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                     {
                         UserId = x.UserId,
                         Username = x.Username,
+                        FullName = x.FullName,
                         Email = x.Email,
                         Role = x.Role,
                         IsActive = x.IsActive,
@@ -79,7 +80,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                             {
                                 StaffId = staff.StaffId,
                                 StaffCode = staff.EmployeeCode,
-                                FullName = staff.FullName,
+                                FullName = entity.FullName ?? string.Empty,
                                 Gender = staff.Gender,
                                 DateOfBirth = staff.DateOfBirth,
                                 DepartmentId = staff.DepartmentId,
@@ -102,7 +103,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                             {
                                 DoctorId = doctor.DoctorId,
                                 DoctorCode = doctor.DoctorCode,
-                                FullName = doctor.FullName,
+                                FullName = entity.FullName ?? string.Empty,
                                 SpecialtyId = doctor.SpecialtyId,
                                 LicenseNumber = doctor.LicenseNumber,
                                 Email =  entity.Email,

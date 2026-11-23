@@ -99,6 +99,7 @@ public class CreateUserCommand : IRequest<Unit>
             var user = new VcUsers
             {
                 Username = model.Username.Trim(),
+                FullName = model.FullName?.Trim(),
                 Email = model.Email.Trim(),
                 Role = upperRole,
                 Password = _passwordHasher.HashPassword(model.Password),

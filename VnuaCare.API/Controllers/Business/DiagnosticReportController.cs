@@ -5,6 +5,7 @@
  */
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.DiagnosticReports;
 using VnuaCare.Business.Business.DiagnosticReports.DiagnosticReportCommands;
@@ -20,6 +21,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/diagnosticreports")]
 [ApiExplorerSettings(GroupName = "Chẩn đoán hình ảnh")]
+[Authorize]
 public class DiagnosticReportController : ApiControllerBase
 {
     private readonly IMediator _mediator;

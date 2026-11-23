@@ -31,10 +31,6 @@ public class VcStaffs
     public string EmployeeCode { get; set; } = string.Empty; 
 
     [Required]
-    [Column("full_name", TypeName = "nvarchar(150)")]
-    public string FullName { get; set; } = string.Empty;
-
-    [Required]
     [Column("gender", TypeName = "varchar(10)")]
     public string Gender { get; set; } = string.Empty; 
 

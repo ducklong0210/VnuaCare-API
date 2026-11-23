@@ -86,6 +86,7 @@ public class UpdateMyProfileCommand : IRequest<Unit>
                 throw new ArgumentException("Tài khoản không tồn tại hoặc đã bị khóa.");
             }
 
+            userEntity.FullName = model.FullName.Trim();
             if (!string.IsNullOrWhiteSpace(model.Email))
             {
                 userEntity.Email = model.Email.Trim();
@@ -102,7 +103,6 @@ public class UpdateMyProfileCommand : IRequest<Unit>
 
                 if (staffEntity != null)
                 {
-                    staffEntity.FullName = model.FullName.Trim();
                     if (!string.IsNullOrWhiteSpace(model.PhoneNumber))
                     {
                         staffEntity.PhoneNumber = model.PhoneNumber.Trim();
@@ -124,17 +124,6 @@ public class UpdateMyProfileCommand : IRequest<Unit>
                         staffEntity.DateOfBirth = model.DateOfBirth.Value;
                     }
                     _dataContext.VcStaffs.Update(staffEntity);
-                }
-            }
-            else if (userEntity.Role == Role.DOCTOR.ToString())
-            {
-                var doctorEntity = await _dataContext.VcDoctors
-                    .FirstOrDefaultAsync(x => x.UserId == currentUserId.Value, cancellationToken);
-
-                if (doctorEntity != null)
-                {
-                    doctorEntity.FullName = model.FullName.Trim();
-                    _dataContext.VcDoctors.Update(doctorEntity);
                 }
             }
             #endregion

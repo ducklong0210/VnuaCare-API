@@ -4,6 +4,7 @@
  */
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.Campaigns;
 using VnuaCare.Business.Business.Campaigns.CampaignQueries;
@@ -25,6 +26,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/healthcheckuprecords")]
 [ApiExplorerSettings(GroupName = "Thông tin chung bệnh án")]
+[Authorize]
 public class HealthCheckupRecordController : ApiControllerBase
 {
     private readonly IMediator _mediator;

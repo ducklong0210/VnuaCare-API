@@ -27,6 +27,10 @@ public class VcHealthCheckupRecords
     [Column("sid_code", TypeName = "varchar(50)")]
     public string SidCode { get; set; } // Mã vạch hồ sơ / Mã tiếp nhận SID của 
     
+    [Column("examination_date", TypeName = "date")]
+    
+    public DateTime ExaminationDate { get; set; } // ngày kiểm tra
+    
     [Column("actual_checkup_date", TypeName = "date")]
     public DateTime ActualCheckupDate { get; set; } // Ngày cán bộ thực tế đến khám
     

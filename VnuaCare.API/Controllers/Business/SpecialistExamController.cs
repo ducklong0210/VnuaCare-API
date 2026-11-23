@@ -5,6 +5,7 @@
  */
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.SpecialistExams;
 using VnuaCare.Business.Business.SpecialistExams.SpecialistExamCommands;
@@ -20,6 +21,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/specialistexams")]
 [ApiExplorerSettings(GroupName = "Khám chuyên khoa lẻ")]
+[Authorize]
 public class SpecialistExamController : ApiControllerBase
 {
     private readonly IMediator _mediator;

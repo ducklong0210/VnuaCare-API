@@ -18,6 +18,8 @@ public abstract record UserBaseModel
     [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
     public string Username { get; init; }
 
+    public string? FullName { get; init; }
+
     [Required(ErrorMessage = "Email không được để trống")]
     public string? Email { get; init; }
 
@@ -32,7 +34,6 @@ public abstract record UserBaseModel
 
 public record UserModel : UserBaseModel
 {
-    // public string? DisplayName { get; init; }
     // Hồ sơ Cán bộ (nếu là STAFF)
     public StaffModel? StaffProfile { get; set; }
     // Hồ sơ Bác sĩ (nếu là DOCTOR)
@@ -108,6 +109,8 @@ public record CreateUserModel
     [Required(ErrorMessage = "Tên đăng nhập không được để trống")]
     public string Username { get; init; } = string.Empty;
 
+    public string? FullName { get; init; }
+
     [Required(ErrorMessage = "Mật khẩu không được để trống")]
     public string Password { get; init; } = string.Empty;
 
@@ -129,6 +132,8 @@ public record UpdateUserModel
     [Required(ErrorMessage = "ID người dùng không được để trống")]
     public int UserId { get; init; }
 
+    public string? FullName { get; init; }
+
     [Required(ErrorMessage = "Email không được để trống")]
     [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
     public string Email { get; init; } = string.Empty;
@@ -140,6 +145,10 @@ public record UpdateUserModel
 
     public void UpdateEntity(VcUsers entity)
     {
+        if (!string.IsNullOrWhiteSpace(this.FullName))
+        {
+            entity.FullName = this.FullName.Trim();
+        }
         entity.Email = this.Email.Trim();
         entity.Role = this.Role.Trim().ToUpper();
         entity.IsActive = this.IsActive;

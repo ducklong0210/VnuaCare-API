@@ -27,10 +27,6 @@ public class VcDoctors
     public string DoctorCode { get; set; } = string.Empty; 
 
     [Required]
-    [Column("full_name", TypeName = "nvarchar(150)")]
-    public string FullName { get; set; } = string.Empty; 
-
-    [Required]
     [Column("specialty_id", TypeName = "int")]
     public int SpecialtyId { get; set; } // ID chuyên khoa phụ trách
 

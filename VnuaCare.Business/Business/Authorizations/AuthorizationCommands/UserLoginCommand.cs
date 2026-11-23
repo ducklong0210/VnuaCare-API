@@ -85,7 +85,7 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
 
             _cacheService.Remove(AuthorizationConstant.BuildCacheKey());
 
-            string? fullname = null;
+            string? fullname = user.FullName;
             string? staffcode = null;
             string? doctorcode = null;
 
@@ -94,7 +94,6 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
                 var staff = await _dataContext.VcStaffs.FirstOrDefaultAsync(s => s.UserId == user.UserId, cancellationToken);
                 if (staff != null)
                 {
-                    fullname = staff.FullName;
                     staffcode = staff.EmployeeCode;
                 }
             }else if (user.Role == "DOCTOR")
@@ -102,7 +101,6 @@ public class UserLoginCommand : IRequest<LoginResponseModel>
                 var doctor = await _dataContext.VcDoctors.FirstOrDefaultAsync(d => d.UserId == user.UserId, cancellationToken);
                 if (doctor != null)
                 {
-                    fullname = doctor.FullName;
                     doctorcode = doctor.DoctorCode;
                 }
             }

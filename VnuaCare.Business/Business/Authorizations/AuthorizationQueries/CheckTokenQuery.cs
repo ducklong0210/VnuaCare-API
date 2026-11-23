@@ -41,7 +41,7 @@ public class CheckTokenQuery : IRequest<CheckTokenResponseModel?>
                 return null;
             }
 
-            string? fullName = null;
+            string? fullName = user.FullName;
             string? staffCode = null;
             string? doctorCode = null;
             string? avatarUrl = null;
@@ -51,7 +51,6 @@ public class CheckTokenQuery : IRequest<CheckTokenResponseModel?>
                 .FirstOrDefaultAsync(s => s.UserId == user.UserId, cancellationToken);
             if (staff != null)
             {
-                fullName = staff.FullName;
                 staffCode = staff.EmployeeCode;
                 avatarUrl = staff.AvatarUrl;
             }
@@ -62,7 +61,6 @@ public class CheckTokenQuery : IRequest<CheckTokenResponseModel?>
                     .FirstOrDefaultAsync(d => d.UserId == user.UserId, cancellationToken);
                 if (doctor != null)
                 {
-                    fullName = doctor.FullName;
                     doctorCode = doctor.DoctorCode;
                 }
             }

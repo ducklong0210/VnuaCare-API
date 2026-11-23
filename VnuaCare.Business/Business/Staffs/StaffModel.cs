@@ -65,7 +65,6 @@ public record UpdateStaffModel : StaffBaseModel
 {
     public void UpdateEntity(VcStaffs vcStaffs)
     {
-        vcStaffs.FullName = this.FullName;
         vcStaffs.Gender = this.Gender;
         vcStaffs.DateOfBirth = this.DateOfBirth ?? DateTime.Now;
         if (this.DepartmentId > 0)

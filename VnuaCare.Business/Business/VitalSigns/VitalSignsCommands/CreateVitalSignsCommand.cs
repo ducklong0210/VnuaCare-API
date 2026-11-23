@@ -47,10 +47,9 @@ public class CreateVitalSignsCommand : IRequest<Unit>
             var currentUserRole = _contextAccessor.Role;
             if (currentUserRole != Role.DOCTOR.ToString() &&
                 currentUserRole != Role.HEALTH_ADMIN.ToString() &&
-                currentUserRole != Role.SUPER_ADMIN.ToString() &&
-                currentUserRole != Role.STAFF.ToString())
+                currentUserRole != Role.SUPER_ADMIN.ToString())
             {
-                throw new UnauthorizedAccessException("Bạn không có quyền thêm mới chỉ số sinh tồn và thể lực.");
+                throw new UnauthorizedAccessException("Chỉ Bác sĩ hoặc Quản trị viên y tế mới có quyền thêm mới chỉ số sinh tồn và thể lực.");
             }
             #endregion
 

@@ -54,7 +54,7 @@ public class GetDoctorByIdIndex : IRequest<DoctorModel>
                         DoctorId = x.DoctorId,
                         Email = x.User.Email,
                         DoctorCode = x.DoctorCode,
-                        FullName = x.FullName,
+                        FullName = x.User != null ? (x.User.FullName ?? "") : "",
                         SpecialtyId = x.SpecialtyId,
                         SpesialtyName = x.Specialty != null ? x.Specialty.SpecialtyName : "",
                         LicenseNumber = x.LicenseNumber,

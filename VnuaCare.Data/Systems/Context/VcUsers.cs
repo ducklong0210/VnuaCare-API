@@ -23,6 +23,9 @@ public class VcUsers : BaseEntity
     [Column("username", TypeName = "varchar(100)")]
     public string Username { get; set; } = string.Empty; // Tên đăng nhập tài khoản
 
+    [Column("full_name", TypeName = "nvarchar(255)")]
+    public string? FullName { get; set; } // Họ và tên đầy đủ của người dùng
+
     [Required]
     [Column("password_hash", TypeName = "varchar(255)")]
     public string Password { get; set; } = string.Empty; 

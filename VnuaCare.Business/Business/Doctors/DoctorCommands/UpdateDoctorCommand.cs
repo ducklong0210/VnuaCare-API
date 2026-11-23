@@ -53,13 +53,18 @@ public class UpdateDoctorCommand : IRequest<Unit>
             }
 
             #region Kiểm tra tính hợp lệ (Validation)
-            // Kiểm tra phân quyền người thực hiện
+            // Kiểm tra phân quyền người thực hiện (Chỉ Quản trị viên hoặc chính bác sĩ đó được sửa hồ sơ của mình)
             var currentRole = _contextAccessor.Role;
-            if (currentRole != Role.SUPER_ADMIN.ToString() &&
-                currentRole != Role.HEALTH_ADMIN.ToString() &&
-                currentRole != Role.DOCTOR.ToString())
+            var currentUserId = _contextAccessor.UserId;
+            bool isAdmin = currentRole == Role.SUPER_ADMIN.ToString() ||
+                           currentRole == Role.HEALTH_ADMIN.ToString();
+            bool isOwnerDoctor = currentRole == Role.DOCTOR.ToString() &&
+                                 currentUserId.HasValue &&
+                                 entity.UserId == currentUserId.Value;
+
+            if (!isAdmin && !isOwnerDoctor)
             {
-                throw new ArgumentException("Bạn không có quyền thay đổi thông tin bác sĩ.");
+                throw new UnauthorizedAccessException("Bạn không có quyền thay đổi thông tin bác sĩ này.");
             }
 
             // Kiểm tra định dạng Email
@@ -78,11 +83,18 @@ public class UpdateDoctorCommand : IRequest<Unit>
             }
             #endregion
             
-            // Cập nhật thông tin Email của tài khoản User liên kết
-            var userEntity = await _dataContext.VcUsers.FirstOrDefaultAsync(x => x.UserId == entity.UserId);
-            if (userEntity != null && !string.IsNullOrEmpty(userEntity.Email))
+            // Cập nhật thông tin FullName & Email của tài khoản User liên kết
+            var userEntity = await _dataContext.VcUsers.FirstOrDefaultAsync(x => x.UserId == entity.UserId, cancellationToken);
+            if (userEntity != null)
             {
-                userEntity.Email = model.Email.Trim();
+                if (!string.IsNullOrWhiteSpace(model.FullName))
+                {
+                    userEntity.FullName = model.FullName.Trim();
+                }
+                if (!string.IsNullOrEmpty(model.Email))
+                {
+                    userEntity.Email = model.Email.Trim();
+                }
                 userEntity.UpdatedAt = DateTime.Now;
                 _dataContext.VcUsers.Update(userEntity);
             }
@@ -94,9 +106,10 @@ public class UpdateDoctorCommand : IRequest<Unit>
             _dataContext.VcDoctors.Update(entity);
             await _dataContext.SaveChangesAsync(cancellationToken);
             
-            // Xóa Cache thông tin bác sĩ để cập nhật dữ liệu mới nhất
+            // Xóa Cache thông tin bác sĩ và cache người dùng liên kết để cập nhật dữ liệu mới nhất
             _cacheService.Remove(DoctorConstant.BuildCacheKey(entity.DoctorId.ToString()));
             _cacheService.Remove(DoctorConstant.BuildCacheKey());
+            _cacheService.Remove(VnuaCare.Business.Business.Users.UserConstant.BuildCacheKey(entity.UserId.ToString()));
             
             Log.Information("Cập nhật bác sĩ thành công ID: " + entity.DoctorId);
             return Unit.Value;

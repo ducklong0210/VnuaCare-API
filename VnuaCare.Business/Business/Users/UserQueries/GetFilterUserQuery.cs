@@ -56,11 +56,13 @@ public class GetFilterUserQuery : IRequest<PaginationList<UserModel>>
                 query = query.Where(x => x.IsActive == filter.IsActive.Value);
             }
 
-            // Tìm kiếm tự do theo Username hoặc Email
+            // Tìm kiếm tự do theo Username, FullName hoặc Email
             if (!string.IsNullOrWhiteSpace(filter.TextSearch))
             {
                 var ts = filter.TextSearch.Trim().ToLower();
-                query = query.Where(x => x.Username.ToLower().Contains(ts) || (x.Email != null && x.Email.ToLower().Contains(ts)));
+                query = query.Where(x => x.Username.ToLower().Contains(ts) ||
+                                         (x.FullName != null && x.FullName.ToLower().Contains(ts)) ||
+                                         (x.Email != null && x.Email.ToLower().Contains(ts)));
             }
 
             // Sắp xếp
@@ -92,6 +94,7 @@ public class GetFilterUserQuery : IRequest<PaginationList<UserModel>>
                 {
                     UserId = x.UserId,
                     Username = x.Username,
+                    FullName = x.FullName,
                     Email = x.Email,
                     Role = x.Role,
                     IsActive = x.IsActive,

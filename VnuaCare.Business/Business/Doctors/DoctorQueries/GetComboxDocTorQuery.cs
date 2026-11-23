@@ -58,12 +58,12 @@ public class GetComboxDocTorQuery : IRequest<List<DoctorSelectModel>>
                 }
 
                 var list = await query
-                    .OrderBy(x => x.FullName)
+                    .OrderBy(x => x.User != null ? x.User.FullName : "")
                     .Select(x => new DoctorSelectModel
                     {
                         DoctorId = x.DoctorId,
                         DoctorCode = x.DoctorCode,
-                        FullName = x.FullName,
+                        FullName = x.User != null ? (x.User.FullName ?? "") : "",
                         SpecialtyId = x.SpecialtyId,
                         SpecialtyName = x.Specialty != null ? x.Specialty.SpecialtyName : null,
                         HospitalName = x.HospitalName

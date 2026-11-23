@@ -4,6 +4,7 @@
  */
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.Campaigns;
 using VnuaCare.Business.Business.Campaigns.CampaignCommands;
@@ -19,6 +20,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/campaigns")]
 [ApiExplorerSettings(GroupName = "Quản lý đợt khám")]
+[Authorize]
 public class CampaignController : ApiControllerBase
 {
     private readonly IMediator _mediator;

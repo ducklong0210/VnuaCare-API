@@ -4,6 +4,7 @@
  */
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.InternalMedicine;
 using VnuaCare.Business.Business.InternalMedicine.InternalMedicineCommands;
@@ -19,6 +20,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/internalmedicines")]
 [ApiExplorerSettings(GroupName = "Khám nội khoa tổng quát")]
+[Authorize]
 public class InternalMedicineController : ApiControllerBase
 {
     private readonly IMediator _mediator;

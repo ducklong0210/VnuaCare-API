@@ -117,6 +117,7 @@ public class ImportrStaffFormExcelCommand : IRequest<ImportStaffResultModel>
                     #region Tạo User và Staff
                     var user = new VcUsers
                     {
+                        FullName = staff.FullName.Trim(),
                         Email = staff.Email.Trim(),
                         Role = Role.STAFF.ToString(),
                         IsActive = true,
@@ -130,7 +131,6 @@ public class ImportrStaffFormExcelCommand : IRequest<ImportStaffResultModel>
                     {
                         UserId = user.UserId,
                         EmployeeCode = staff.StaffCode.Trim().ToUpper(),
-                        FullName = staff.FullName.Trim(),
                         Gender = staff.Gender,
                         DateOfBirth = staff.DateOfBirth ?? DateTime.Now,
                         DepartmentId = staff.DepartmentId,

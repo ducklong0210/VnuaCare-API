@@ -55,7 +55,7 @@ public class GetFilterDoctorQuery : IRequest<PaginationList<DoctorModel>>
             if (!string.IsNullOrWhiteSpace(filter.TextSearch) && filter.TextSearch != "string")
             {
                 string ts = filter.TextSearch.Trim().ToLower();
-                query = query.Where(q => q.FullName.ToLower().Contains(ts) ||
+                query = query.Where(q => (q.User != null && q.User.FullName != null && q.User.FullName.ToLower().Contains(ts)) ||
                                          q.DoctorCode.ToLower().Contains(ts) ||
                                          q.HospitalName.ToLower().Contains(ts));
             }
@@ -83,7 +83,7 @@ public class GetFilterDoctorQuery : IRequest<PaginationList<DoctorModel>>
                     UserId = x.UserId,
                     DoctorId = x.DoctorId,
                     DoctorCode = x.DoctorCode,
-                    FullName = x.FullName,
+                    FullName = x.User != null ? (x.User.FullName ?? "") : "",
                     SpecialtyId = x.SpecialtyId,
                     SpesialtyName = x.Specialty != null ? x.Specialty.SpecialtyName : "",
                     HospitalName = x.HospitalName,

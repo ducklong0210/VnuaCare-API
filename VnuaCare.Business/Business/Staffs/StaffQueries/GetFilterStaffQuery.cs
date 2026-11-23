@@ -55,7 +55,7 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
             if (!string.IsNullOrEmpty((filter.TextSearch)))
             {
                 string ts = filter.TextSearch.Trim().ToLower();
-                query = query.Where(x => x.FullName.ToLower().Contains(ts) ||
+                query = query.Where(x => (x.User != null && x.User.FullName != null && x.User.FullName.ToLower().Contains(ts)) ||
                                          x.EmployeeCode.ToLower().Contains(ts)
                                          || x.JobTitle.ToLower().Contains(ts)
                                          || x.PhoneNumber.ToLower().Contains(ts));
@@ -81,7 +81,7 @@ public class GetFilterStaffQuery : IRequest<PaginationList<StaffModel>>
                 UserId = x.UserId,
                 StaffId = x.StaffId,
                 StaffCode = x.EmployeeCode,
-                FullName = x.FullName,
+                FullName = x.User != null ? (x.User.FullName ?? "") : "",
                 Gender =  x.Gender,
                 DateOfBirth =  x.DateOfBirth,
                 // DepartmentId = x.DepartmentId,

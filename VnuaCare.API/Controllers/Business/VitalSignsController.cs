@@ -4,6 +4,7 @@
  */
 
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VnuaCare.Business.Business.VitalSigns;
 using VnuaCare.Business.Business.VitalSigns.VitalSignsCommands;
@@ -19,6 +20,7 @@ namespace VnuaCare.API.Controllers.Business;
 [ApiController]
 [Route("api/v1/vitalsigns")]
 [ApiExplorerSettings(GroupName = "Khám thể lực & Sinh tồn")]
+[Authorize]
 public class VitalSignsController : ApiControllerBase
 {
     private readonly IMediator _mediator;

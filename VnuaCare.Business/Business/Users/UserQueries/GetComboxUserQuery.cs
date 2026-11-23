@@ -68,38 +68,12 @@ public class GetComboxUserQuery : IRequest<List<UserSelectModel>>
                     {
                         UserId = x.UserId,
                         Username = x.Username,
+                        FullName = x.FullName,
                         Email = x.Email,
                         Role = x.Role,
                         IsActive = x.IsActive
                     })
                     .ToListAsync(cancellationToken);
-
-                if (userList.Count > 0)
-                {
-                    var userIds = userList.Select(u => u.UserId).ToList();
-
-                    // Lấy tên cán bộ nếu tài khoản thuộc nhân viên
-                    var staffMap = await _dataContext.VcStaffs.AsNoTracking()
-                        .Where(s => userIds.Contains(s.UserId))
-                        .ToDictionaryAsync(s => s.UserId, s => s.FullName, cancellationToken);
-
-                    // Lấy tên bác sĩ nếu tài khoản thuộc bác sĩ
-                    var doctorMap = await _dataContext.VcDoctors.AsNoTracking()
-                        .Where(d => userIds.Contains(d.UserId))
-                        .ToDictionaryAsync(d => d.UserId, d => d.FullName, cancellationToken);
-
-                    foreach (var u in userList)
-                    {
-                        if (staffMap.TryGetValue(u.UserId, out var staffName))
-                        {
-                            u.FullName = staffName;
-                        }
-                        else if (doctorMap.TryGetValue(u.UserId, out var doctorName))
-                        {
-                            u.FullName = doctorName;
-                        }
-                    }
-                }
 
                 return userList;
             });

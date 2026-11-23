@@ -54,7 +54,7 @@ public class CreateStaffCommand : IRequest<Unit>
             if (currentUserRole != Role.SUPER_ADMIN.ToString() &&
                 currentUserRole != Role.HEALTH_ADMIN.ToString())
             {
-                throw new ArgumentException("Bạn không có quyền thực hiện chức năng này (Yêu cầu quyền Quản trị viên).");
+                throw new UnauthorizedAccessException("Bạn không có quyền thực hiện chức năng này (Yêu cầu quyền Quản trị viên).");
             }
             #endregion
 
@@ -104,6 +104,12 @@ public class CreateStaffCommand : IRequest<Unit>
             #endregion
 
             #region Lưu tk vào CSDL
+            if (!string.IsNullOrWhiteSpace(model.FullName))
+            {
+                userEntity.FullName = model.FullName.Trim();
+                userEntity.UpdatedAt = DateTime.Now;
+                _dataContext.VcUsers.Update(userEntity);
+            }
 
             //Tạo hồ sơ cán bộ VcStaffs gắn liền với UserId vừa sinh
             var staffEntity = new VcStaffs
@@ -111,7 +117,6 @@ public class CreateStaffCommand : IRequest<Unit>
                 UserId = model.UserId,
                 DepartmentId = model.DepartmentId,
                 EmployeeCode = model.StaffCode.Trim(),
-                FullName = model.FullName.Trim(),
                 Gender = string.IsNullOrWhiteSpace(model.Gender) ? "NAM" : model.Gender.Trim().ToUpper(),
                 PhoneNumber = model.PhoneNumber?.Trim(),
                 DateOfBirth = model.DateOfBirth ?? DateTime.Now,
@@ -125,12 +130,13 @@ public class CreateStaffCommand : IRequest<Unit>
             await _dataContext.SaveChangesAsync(cancellationToken);
             #endregion
 
-            #region Xóa Cache danh sách cán bộ để cập nhật dữ liệu mới
-            _cacheService.Remove(VnuaCareCacheConstant.STAFF);
-            _cacheService.Remove(VnuaCareCacheConstant.LIST_SELECT);
+            #region Xóa Cache danh sách cán bộ và cache người dùng liên kết để cập nhật dữ liệu mới
+            _cacheService.Remove(StaffConstant.BuildCacheKey());
+            _cacheService.Remove(StaffConstant.BuildCacheKey($"dept-{staffEntity.DepartmentId}"));
+            _cacheService.Remove(VnuaCare.Business.Business.Users.UserConstant.BuildCacheKey(model.UserId.ToString()));
             #endregion
 
-            Log.Information($"Thêm cán bộ thành công: {staffEntity.FullName} ({staffEntity.EmployeeCode}) - UserId: {model.UserId}");
+            Log.Information($"Thêm cán bộ thành công: {userEntity.FullName} ({staffEntity.EmployeeCode}) - UserId: {model.UserId}");
 
             return Unit.Value;
         }

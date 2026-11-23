@@ -96,9 +96,9 @@ public class GetFilterDiagnosticReportQuery : IRequest<PaginationList<Diagnostic
                     Conclusion = x.Conclusion,
                     ImageUrls = x.ImageUrls,
                     ReadingDoctorId = x.ReadingDoctorId,
-                    ReadingDoctorName = x.ReadingDoctor != null ? x.ReadingDoctor.FullName : null,
+                    ReadingDoctorName = x.ReadingDoctor != null && x.ReadingDoctor.User != null ? x.ReadingDoctor.User.FullName : null,
                     ApprovingDoctorId = x.ApprovingDoctorId,
-                    ApprovingDoctorName = x.ApprovingDoctor != null ? x.ApprovingDoctor.FullName : null,
+                    ApprovingDoctorName = x.ApprovingDoctor != null && x.ApprovingDoctor.User != null ? x.ApprovingDoctor.User.FullName : null,
                     PerformedAt = x.PerformedAt
                 })
                 .ToListAsync(cancellationToken);

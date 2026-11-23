@@ -50,7 +50,6 @@ public record UpdateDoctorModel : DoctorBaseModel
 {
     public int? ModifiedByDoctorId { get; init; }
     public void UpdateEntity(VcDoctors vcDoctor){
-        vcDoctor.FullName =  FullName;
         vcDoctor.DoctorCode = DoctorCode;
         vcDoctor.HospitalName = HospitalName;
         vcDoctor.SpecialtyId = SpecialtyId;

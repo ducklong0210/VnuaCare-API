@@ -133,6 +133,7 @@ public class CreateHealthCheckupRecordCommand : IRequest<Unit>
                 StaffId = model.StaffId,
                 SidCode = model.SidCode.Trim(),
                 ActualCheckupDate = model.ActualCheckupDate == default ? DateTime.Now : model.ActualCheckupDate,
+                ExaminationDate = model.ExaminationDate == default ? DateTime.Now : model.ExaminationDate,
                 MedicalHistoryPersonal = model.MedicalHistoryPersonal?.Trim(),
                 MedicalHistoryFamily = model.MedicalHistoryFamily?.Trim(),
                 HealthClassification = model.HealthClassification?.Trim(),

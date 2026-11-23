@@ -53,14 +53,18 @@ public class UpdateStaffCommand : IRequest<Unit>
             }
 
             #region Kiểm tra tính hợp lệ (Validation)
-            // Kiểm tra phân quyền người thực hiện
+            // Kiểm tra phân quyền người thực hiện (Chỉ Quản trị viên hoặc chính cán bộ đó được sửa hồ sơ của mình)
             var currentRole = _contextAccessor.Role;
-            if (currentRole != Role.SUPER_ADMIN.ToString() && 
-                currentRole != Role.HEALTH_ADMIN.ToString() &&
-            currentRole != Role.DOCTOR.ToString() &&
-                currentRole != Role.STAFF.ToString())
+            var currentUserId = _contextAccessor.UserId;
+            bool isAdmin = currentRole == Role.SUPER_ADMIN.ToString() ||
+                           currentRole == Role.HEALTH_ADMIN.ToString();
+            bool isOwnerStaff = currentRole == Role.STAFF.ToString() &&
+                                currentUserId.HasValue &&
+                                entity.UserId == currentUserId.Value;
+
+            if (!isAdmin && !isOwnerStaff)
             {
-                throw new ArgumentException("Bạn không có quyền thay đổi thông tin cán bộ.");
+                throw new UnauthorizedAccessException("Bạn không có quyền thay đổi thông tin cán bộ này.");
             }
             
             // Kiểm tra định dạng Email
@@ -92,11 +96,18 @@ public class UpdateStaffCommand : IRequest<Unit>
             }
             #endregion
 
-            // Tìm và cập nhật thông tin Email của tài khoản User liên kết
+            // Tìm và cập nhật thông tin FullName & Email của tài khoản User liên kết
             var userEntity = await _dataContext.VcUsers.FirstOrDefaultAsync(x => x.UserId == entity.UserId, cancellationToken);
-            if (userEntity != null && !string.IsNullOrEmpty(model.Email))
+            if (userEntity != null)
             {
-                userEntity.Email = model.Email.Trim();
+                if (!string.IsNullOrWhiteSpace(model.FullName))
+                {
+                    userEntity.FullName = model.FullName.Trim();
+                }
+                if (!string.IsNullOrEmpty(model.Email))
+                {
+                    userEntity.Email = model.Email.Trim();
+                }
                 userEntity.UpdatedAt = DateTime.Now;
                 _dataContext.VcUsers.Update(userEntity);
             }
@@ -109,9 +120,10 @@ public class UpdateStaffCommand : IRequest<Unit>
             // Lưu các thay đổi vào CSDL
             await _dataContext.SaveChangesAsync(cancellationToken);
             
-            // Xóa Cache thông tin cán bộ để cập nhật dữ liệu mới nhất
+            // Xóa Cache thông tin cán bộ và cache người dùng liên kết để cập nhật dữ liệu mới nhất
             _cacheService.Remove(StaffConstant.BuildCacheKey(entity.StaffId.ToString()));
             _cacheService.Remove(StaffConstant.BuildCacheKey());
+            _cacheService.Remove(VnuaCare.Business.Business.Users.UserConstant.BuildCacheKey(entity.UserId.ToString()));
             
             Log.Information($"Cập nhật cán bộ thành công ID: {entity.StaffId}");
             return Unit.Value;

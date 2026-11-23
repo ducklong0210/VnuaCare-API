@@ -115,7 +115,7 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
                 string ts = filter.TextSearch.Trim().ToLower();
                 query = query.Where(x =>
                     (x.SidCode != null && x.SidCode.ToLower().Contains(ts)) ||
-                    (x.Staff != null && x.Staff.FullName.ToLower().Contains(ts)) ||
+                    (x.Staff != null && x.Staff.User != null && x.Staff.User.FullName != null && x.Staff.User.FullName.ToLower().Contains(ts)) ||
                     (x.Staff != null && x.Staff.EmployeeCode.ToLower().Contains(ts)));
             }
 
@@ -137,13 +137,14 @@ public class GetFilterHealthCheckupRecordQuery : IRequest<PaginationList<HealthC
                     CampaignId = x.CampaignId,
                     CampaignName = x.Campaign != null ? x.Campaign.CampaignName : null,
                     StaffId = x.StaffId,
-                    StaffName = x.Staff != null ? x.Staff.FullName : null,
+                    StaffName = x.Staff != null && x.Staff.User != null ? x.Staff.User.FullName : null,
                     EmployeeCode = x.Staff != null ? x.Staff.EmployeeCode : null,
                     DateOfBirth = x.Staff != null ? x.Staff.DateOfBirth : default,
                     PhoneNumber = x.Staff != null ? x.Staff.PhoneNumber ?? string.Empty : string.Empty,
                     DepartmentName = x.Staff != null && x.Staff.Department != null ? x.Staff.Department.DepartmentName : null,
-                    DoctorName = x.Doctor != null ? x.Doctor.FullName : null,
+                    DoctorName = x.Doctor != null && x.Doctor.User != null ? x.Doctor.User.FullName : null,
                     ConcludedByDoctorId = x.ConcludedByDoctorId ?? 0,
+                    ExaminationDate = x.ExaminationDate,
                     ActualCheckupDate = x.ActualCheckupDate,
                     MedicalHistoryPersonal = x.MedicalHistoryPersonal,
                     MedicalHistoryFamily = x.MedicalHistoryFamily,
