@@ -97,6 +97,36 @@ public class HealthCheckupRecordController : ApiControllerBase
     }
 
     /// <summary>
+    /// Lấy danh sách cán bộ có sức khỏe suy giảm so với năm trước (phục vụ cảnh báo qua Email)
+    /// </summary>
+    /// <param name="campaignId">ID đợt khám cần kiểm tra (tùy chọn)</param>
+    /// <returns>Danh sách hồ sơ cán bộ có xếp loại sức khỏe giảm</returns>
+    [HttpGet, Route("declined-health")]
+    [ProducesResponseType(typeof(ResponseObject<List<DeclinedHealthRecordModel>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetDeclinedHealth([FromQuery] int? campaignId)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new GetDeclinedHealthRecordsQuery(campaignId));
+        });
+    }
+
+    /// <summary>
+    /// Gửi Email cảnh báo cho cán bộ có sức khỏe giảm so với năm trước (gửi lẻ theo RecordId hoặc hàng loạt theo CampaignId)
+    /// </summary>
+    /// <param name="model">Thông số gửi cảnh báo (RecordId / CampaignId / ForceResend)</param>
+    /// <returns>Thống kê số lượng email gửi thành công, bỏ qua và thất bại</returns>
+    [HttpPost, Route("send-health-alert")]
+    [ProducesResponseType(typeof(ResponseObject<SendHealthAlertResultModel>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SendHealthAlert([FromBody] SendHealthAlertRequestModel model)
+    {
+        return await ExecuteFuntion(async () =>
+        {
+            return await _mediator.Send(new SendHealthDeclineAlertCommand(model));
+        });
+    }
+
+    /// <summary>
     /// Lấy thông tin chi tiết hồ sơ khám sức khỏe theo ID
     /// </summary>
     /// <param name="id">ID hồ sơ khám sức khỏe</param>

@@ -12,6 +12,7 @@ using VnuaCare.Business.Business.Services.CacheService;
 using VnuaCare.Business.Services;
 using VnuaCare.Data.Systems.DataContext;
 using VnuaCare.Infrastructure.Services;
+using VnuaCare.Shared.Configurations;
 using VnuaCare.Shared.ContextAccessor;
 
 // Cấu hình Dapper tự động map tên cột dạng snake_case (user_id, password_hash) sang PascalCase (UserId, PasswordHash)
@@ -84,7 +85,9 @@ builder.Services.AddDbContext<VnuaCareReadDataContext>(options =>
 // Đăng ký MediatR xử lý Command & Query
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(UserLoginCommand).Assembly));
 
-// Đăng ký các dịch vụ cốt lõi (PasswordHasher, JwtService)
+// Đăng ký các dịch vụ cốt lõi (PasswordHasher, JwtService, EmailService)
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IBcryptPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddLocalization();

@@ -19,7 +19,9 @@
         <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
          <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="AutoMapper.Collection" Version="10.0.0" />
+    <PackageReference Include="MailKit" Version="5.0.0" />
     <PackageReference Include="MediatR" Version="12.2.0" />
+    <PackageReference Include="MimeKit" Version="5.0.0" />
     <PackageReference Include="Serilog" Version="3.1.1" />
     </ItemGroup>
 

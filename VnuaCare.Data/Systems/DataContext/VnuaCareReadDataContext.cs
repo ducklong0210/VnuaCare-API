@@ -30,6 +30,7 @@ public class VnuaCareReadDataContext : DbContext
     public DbSet<VcVitalSigns> VcVitalSigns { get; set; }                      // Đọc bảng chỉ số chung của cơ thể
     public DbSet<VcSpecialistExams> VcSpecialistExams { get; set; }            // Đọc bảng khám các chuyên khoa lâm sàng lẻ
     public DbSet<VcDiagnosticReports> VcDiagnosticReports { get; set; }        // Đọc bảng kết quả chẩn đoán hình ảnh
+    public DbSet<VcEmailLogs> VcEmailLogs { get; set; }                        // Đọc bảng nhật ký gửi email thông báo
     public DbSet<VcCheckupCampaigns> VcCheckupCampaigns { get; set; }
     public DbSet<VcCampaignRegistrations> VcCampaignRegistrations { get; set; }
 }
