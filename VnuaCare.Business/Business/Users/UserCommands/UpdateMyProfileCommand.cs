@@ -52,6 +52,11 @@ public class UpdateMyProfileCommand : IRequest<Unit>
                 throw new UnauthorizedAccessException("Người dùng chưa đăng nhập hoặc Token không hợp lệ.");
             }
 
+            if (string.Equals(_contextAccessor.Role, Role.STAFF.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                throw new UnauthorizedAccessException("Cán bộ không có quyền tự chỉnh sửa thông tin cá nhân. Vui lòng liên hệ Trạm Y tế VNUA để cập nhật.");
+            }
+
             Log.Information($"Người dùng ID {currentUserId} cập nhật thông tin cá nhân: {JsonSerializer.Serialize(model)}");
 
             #region 1. Kiểm tra tính hợp lệ dữ liệu (Validation)

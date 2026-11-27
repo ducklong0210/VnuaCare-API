@@ -186,7 +186,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// HTTP is allowed only for the explicitly selected local mobile-LAN development profile.
+if (!(app.Environment.IsDevelopment() && builder.Configuration.GetValue<bool>("MobileLanEnabled")))
+{
+    app.UseHttpsRedirection();
+}
 app.UseStaticFiles(); 
 app.UseRouting();
 // KÍCH HOẠT CORS

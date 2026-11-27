@@ -82,7 +82,10 @@ public class EmailService : IEmailService
                     Code = $"LOG-{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}",
                     ToEmail = to,
                     Subject = subject,
-                    Body = htmlContent,
+                    // Password-reset messages contain a short-lived secret: never persist their body.
+                    Body = string.Equals(referenceType, "PasswordReset", StringComparison.OrdinalIgnoreCase)
+                        ? "[Nội dung xác thực đã được ẩn]"
+                        : htmlContent,
                     SentStatus = status,
                     ErrorMessage = errorMessage,
                     CreatedDate = DateTime.Now,

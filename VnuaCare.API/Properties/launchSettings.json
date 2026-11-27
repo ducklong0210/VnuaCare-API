@@ -9,6 +9,16 @@
     }
   },
   "profiles": {
+    "mobile-lan": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://0.0.0.0:5049",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "MobileLanEnabled": "true"
+      },
+      "dotnetRunMessages": true
+    },
     "http": {
       "commandName": "Project",
       "launchBrowser": true,

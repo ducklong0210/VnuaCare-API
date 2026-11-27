@@ -33,6 +33,9 @@ public class VnuaCareDataContext : DbContext
     public DbSet<VcSpecialistExams> VcSpecialistExams { get; set; }            // Quản lý bảng khám các chuyên khoa lâm sàng lẻ (vc_specialist_exams)
     public DbSet<VcDiagnosticReports> VcDiagnosticReports { get; set; }        // Quản lý bảng kết quả chẩn đoán hình ảnh (vc_diagnostic_reports)
     public DbSet<VcEmailLogs> VcEmailLogs { get; set; }                        // Quản lý bảng nhật ký gửi email thông báo (vc_email_logs)
+    public DbSet<VcLabIndicatorCatalog> VcLabIndicatorCatalog { get; set; }    // Quản lý danh mục chỉ số xét nghiệm (vc_lab_indicator_catalog)
+    public DbSet<VcLabTestOrders> VcLabTestOrders { get; set; }                // Quản lý phiếu chỉ định xét nghiệm (vc_lab_test_orders)
+    public DbSet<VcLabTestResults> VcLabTestResults { get; set; }              // Quản lý kết quả chỉ số xét nghiệm (vc_lab_test_results)
     public DbSet<VcCheckupCampaigns> VcCheckupCampaigns { get; set; }
     public DbSet<VcCampaignRegistrations> VcCampaignRegistrations { get; set; }
 }

@@ -30,17 +30,19 @@ public class ForgotPasswordCommand : IRequest<string>
     {
         private readonly VnuaCareDataContext _dataContext;
         private readonly ICacheService _cacheService;
+        private readonly IEmailService _emailService;
 
-        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService)
+        public Handler(VnuaCareDataContext dataContext, ICacheService cacheService, IEmailService emailService)
         {
             _dataContext = dataContext;
             _cacheService = cacheService;
+            _emailService = emailService;
         }
 
         public async Task<string> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {
             var email = request.Model.Email.Trim().ToLower();
-            Log.Information($"Yêu cầu quên mật khẩu cho email: {email}");
+            const string confirmation = "Nếu email liên kết với tài khoản đang hoạt động, mã xác thực sẽ được gửi và có hiệu lực trong 15 phút.";
 
             if (!ValidationUtils.IsEmail(email))
             {
@@ -50,11 +52,20 @@ public class ForgotPasswordCommand : IRequest<string>
             var user = await _dataContext.VcUsers.FirstOrDefaultAsync(x => x.Email != null && x.Email.ToLower() == email && x.IsActive, cancellationToken);
             if (user == null)
             {
-                throw new ArgumentException("Không tìm thấy tài khoản nào liên kết với địa chỉ email này hoặc tài khoản đã bị khóa.");
+                return confirmation;
             }
 
+            // Match the mobile resend interval; do not replace a usable OTP during the cooldown.
+            string cooldownKey = $"pwd-reset-cooldown-{user.UserId}";
+            var cooldown = await _cacheService.GetOrCreate<string?>(cooldownKey, () => Task.FromResult<string?>(null));
+            if (cooldown != null) return confirmation;
+            await _cacheService.Set(cooldownKey, "1", new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60)
+            });
+
             // Tạo mã OTP 6 số bảo mật
-            string otp = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
+            string otp = RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
 
             // Lưu mã OTP vào Cache thời hạn 15 phút
             string cacheKey = $"pwd-reset-{email}";
@@ -63,9 +74,20 @@ public class ForgotPasswordCommand : IRequest<string>
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
             });
 
-            Log.Information($"Mã OTP đặt lại mật khẩu cho {email}: {otp}");
+            try
+            {
+                await _emailService.SendEmailAsync(email, "VnuaCare - Mã xác thực đặt lại mật khẩu",
+                    $"<html lang=\"vi\"><body><h2>Đặt lại mật khẩu VnuaCare</h2><p>Mã xác thực của bạn là:</p><p style=\"font-size:28px;font-weight:bold;letter-spacing:6px\">{otp}</p><p>Mã có hiệu lực trong 15 phút. Không chia sẻ mã này với bất kỳ ai.</p><p>Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này.</p></body></html>",
+                    "PasswordReset", user.UserId);
+            }
+            catch
+            {
+                _cacheService.Remove(cacheKey);
+                // Preserve the same public response for unknown accounts and SMTP failures.
+                Log.Warning("Không thể gửi email đặt lại mật khẩu cho UserId={UserId}.", user.UserId);
+            }
 
-            return $"Mã xác thực đặt lại mật khẩu đã được tạo thành công cho email {email}. Mã có hiệu lực trong vòng 15 phút.";
+            return confirmation;
         }
     }
 }

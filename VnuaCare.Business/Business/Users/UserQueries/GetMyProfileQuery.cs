@@ -88,6 +88,7 @@ public class GetMyProfileQuery : IRequest<UserModel>
                                 JobTitle = staff.JobTitle,
                                 PhoneNumber = staff.PhoneNumber,
                                 Adrress = staff.Address,
+                                AvatarUrl = staff.AvatarUrl,
                                 Email = entity.Email,
                                 DepartmentName = staff.Department?.DepartmentName
                             };
